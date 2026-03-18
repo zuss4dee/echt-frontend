@@ -1,6 +1,8 @@
  "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
+import UnicornScene from "unicornstudio-react/next";
 
 export default function LandingHero() {
   return (
@@ -37,83 +39,165 @@ export default function LandingHero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 2 }}
-        className="relative z-10 flex min-h-screen flex-col px-6 pb-10 pt-6 sm:px-10 lg:px-20"
+        className="relative z-10 flex min-h-screen flex-col px-4 pb-12 pt-6 sm:px-8 lg:px-14"
       >
-        {/* Top nav */}
-        <header className="flex items-center justify-between text-sm font-medium">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/30 bg-white/10">
-              <span className="text-[11px] font-semibold tracking-tight">E</span>
-            </div>
-            <span className="text-[13px] font-semibold tracking-tight">Echt</span>
-          </div>
-
-          {/* Center nav */}
-          <nav className="hidden gap-8 text-[13px] text-white/70 sm:flex">
-            <button className="hover:text-white transition-colors">Privacy</button>
-            <button className="hover:text-white transition-colors">Technology</button>
-            <button className="hover:text-white transition-colors">Developers</button>
-            <button className="hover:text-white transition-colors">Blog</button>
-          </nav>
-
-          {/* Right CTAs */}
-          <div className="flex items-center gap-3">
-            <button className="hidden rounded-full border border-white/25 px-4 py-1.5 text-[12px] font-medium text-white/90 backdrop-blur-sm hover:bg-white/10 sm:inline-flex">
-              Sign up
-            </button>
-            <button className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-[12px] font-medium text-black hover:bg-white/90">
-              <span>Sign up</span>
-              <span aria-hidden className="text-[11px]">
-                ↗
+        {/* Light/airy foreground shell */}
+        <div className="mx-auto w-full max-w-6xl">
+          {/* Top nav (Zest-style) */}
+          <header className="flex items-center justify-between gap-4 rounded-full bg-white/10 px-4 py-3 text-[13px] text-white shadow-[0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl ring-1 ring-white/15 sm:px-6">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/20">
+                <span className="text-[11px] font-semibold tracking-tight">e</span>
+              </div>
+              <span className="font-semibold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+                Echt AI
               </span>
-            </button>
-          </div>
-        </header>
-
-        {/* Hero grid */}
-        <div className="mt-16 flex flex-1 flex-col gap-10 lg:mt-24 lg:flex-row">
-          {/* Left: main heading */}
-          <div className="flex flex-1 items-center">
-            <h1 className="max-w-xl text-5xl font-semibold tracking-tight leading-[0.95] sm:text-7xl lg:text-[4.8rem]">
-              Prove{" "}
-              <span className="underline decoration-[1.5px] underline-offset-[0.18em]">
-                who
-              </span>{" "}
-              and
-              <br />
-              <span className="underline decoration-[1.5px] underline-offset-[0.18em]">
-                what
-              </span>{" "}
-              is real.
-            </h1>
-          </div>
-
-          {/* Right: subcopy + buttons column (starts midway down) */}
-          <div className="flex w-full flex-col justify-center gap-6 lg:w-[360px] lg:pt-32">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/55">
-              Introducing proof of tenancy
             </div>
-            <p className="text-sm leading-relaxed text-white/80">
-              Echt combines deep document forensics with AI fraud detection so tenant
-              referencing agencies and property managers can verify people and paperwork
-              online before they get the keys.
-            </p>
-            <div className="mt-2 flex flex-wrap gap-3">
-              <button className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-[13px] font-medium text-black hover:bg-white/90">
-                <span>Sign up</span>
-                <span aria-hidden className="text-[12px]">
-                  ↗
-                </span>
+
+            {/* Center nav */}
+            <nav className="hidden items-center gap-6 text-white/80 md:flex">
+              <button className="hover:text-white transition-colors">Platform</button>
+              <button className="hover:text-white transition-colors">Security</button>
+              <button className="hover:text-white transition-colors">Enterprise</button>
+              <button className="hover:text-white transition-colors">&nbsp;</button>
+            </nav>
+
+            {/* Right */}
+            <div className="flex items-center gap-3">
+              <button className="hidden text-white/80 hover:text-white transition-colors sm:inline-flex drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+                Login
               </button>
-              <button className="inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-transparent px-5 py-2 text-[13px] font-medium text-white hover:bg-white/5">
-                <span>Integrate Echt</span>
-                <span aria-hidden className="text-[12px]">
-                  ↗
-                </span>
+              <button className="rounded-full bg-white px-4 py-2 text-slate-950 shadow-sm hover:bg-white/90 transition-colors">
+                Start Scanning
               </button>
             </div>
-          </div>
+          </header>
+
+          {/* Hero */}
+          <section className="mt-10 rounded-[32px] bg-white/10 px-6 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl ring-1 ring-white/15 sm:px-10 sm:py-14">
+            {/* Small badge */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3 py-1 text-[11px] font-medium text-white/85 backdrop-blur-xl ring-1 ring-white/10">
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white text-[10px]">
+                  ⚡
+                </span>
+                Echt helps teams reduce tenancy fraud
+                <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-white/80 text-[10px] ring-1 ring-white/10">
+                  i
+                </span>
+              </div>
+            </div>
+
+            {/* Heading + subcopy */}
+            <div className="mt-8 text-center">
+              <h1 className="mx-auto max-w-3xl font-sans text-4xl leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] sm:text-6xl">
+                Prove the truth behind
+                <br />
+                every document.
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-[13px] leading-relaxed text-white/85 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] sm:text-[14px]">
+                Echt is the forensic layer for modern referencing. We automate the deep-scan of payslips, bank statements, and IDs to identify pixel-level manipulations and AI-generated fraud before they reach your desk.
+              </p>
+            </div>
+
+            {/* Media row */}
+            <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
+              {/* Left media card (placeholder portrait + tooltip) */}
+              <div className="relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/15 backdrop-blur-xl">
+                <div className="absolute inset-0 opacity-[0.55]">
+                  <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#4B00E0]/10 blur-3xl" />
+                  <div className="absolute -right-20 -bottom-24 h-64 w-64 rounded-full bg-[#2D0066]/10 blur-3xl" />
+                </div>
+
+                <div className="relative">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/15 shadow-inner">
+                    <Image
+                      src="/ai-model.png"
+                      alt="AI model portrait"
+                      fill
+                      priority
+                      sizes="(min-width: 1024px) 26vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-black/30 px-4 py-3 text-[12px] text-white/85 shadow-sm backdrop-blur-xl ring-1 ring-white/15">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-white">Pixel-Level Forensics</div>
+                      <div className="text-white/70">92% flagged</div>
+                    </div>
+                    <div className="mt-2 h-2 w-full rounded-full bg-white/20">
+                      <div className="h-2 w-[72%] rounded-full bg-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right media card (placeholder dashboard) */}
+              <div className="relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/15 backdrop-blur-xl">
+                <div className="absolute inset-0">
+                  <div className="absolute -left-28 -top-24 h-72 w-72 rounded-full bg-[#4B00E0]/15 blur-3xl" />
+                  <div className="absolute -right-20 -bottom-24 h-72 w-72 rounded-full bg-[#2D0066]/15 blur-3xl" />
+                </div>
+
+                <div className="relative rounded-2xl border border-white/20 bg-black/20 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-[12px] font-semibold text-white">File DNA Inspection</div>
+                      <div className="mt-1 text-[11px] text-white/70">Upload → signals → decision</div>
+                    </div>
+                    <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white/85">
+                      Linguistic Fingerprinting
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-12 gap-4">
+                    <div className="col-span-5 rounded-xl bg-white/10 p-4 ring-1 ring-white/10">
+                      <div className="h-2 w-24 rounded bg-white/30" />
+                      <div className="mt-3 h-20 rounded-lg bg-white/15" />
+                      <div className="mt-3 space-y-2">
+                        <div className="h-2 w-20 rounded bg-white/30" />
+                        <div className="h-2 w-28 rounded bg-white/30" />
+                      </div>
+                    </div>
+                    <div className="col-span-7 rounded-xl bg-white/10 p-4 ring-1 ring-white/10">
+                      <div className="flex items-center justify-between">
+                        <div className="h-2 w-28 rounded bg-white/30" />
+                        <div className="h-7 w-16 rounded-full bg-white/15" />
+                      </div>
+                      <div className="mt-3 h-24 rounded-lg bg-white/15" />
+                      <div className="mt-3 h-20 rounded-lg bg-white/15" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trusted logos */}
+            <div className="mt-10 border-t border-white/5 pt-6">
+              <div className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
+                The forensic standard for tier-1 referencing agencies and fraud operations.
+              </div>
+
+              <div className="mt-5 flex items-center justify-between gap-6 opacity-30">
+                {[
+                  "REFERENCING AGENCIES",
+                  "LETTING PLATFORMS",
+                  "BUILD-TO-RENT OPS",
+                  "FRAUD INVESTIGATORS",
+                  "COMPLIANCE TEAMS",
+                ].map((label) => (
+                  <div
+                    key={label}
+                    className="whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.14em] text-white"
+                  >
+                    {label}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </motion.div>
 
