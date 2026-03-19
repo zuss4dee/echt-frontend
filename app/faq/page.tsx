@@ -24,11 +24,11 @@ export default function FaqPage() {
     <main className="min-h-dvh bg-white text-zinc-900">
       <header className="border-b border-zinc-200 bg-white px-6 py-5">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link href="/landing" className="transition-opacity hover:opacity-80">
+          <Link href="/" className="transition-opacity hover:opacity-80">
             <EchtWordmark className="h-8 w-auto text-zinc-900" />
           </Link>
           <Link
-            href="/landing"
+            href="/"
             className="text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
           >
             Back to marketing site
