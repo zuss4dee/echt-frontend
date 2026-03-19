@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import UnicornScene from "unicornstudio-react/next";
+import { EchtWordmark } from "@/components/EchtLogo";
+import { Highlighter } from "@/components/ui/highlighter";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { Safari } from "@/components/ui/safari";
 
 export default function LandingHero() {
   return (
@@ -47,12 +51,7 @@ export default function LandingHero() {
           <header className="flex items-center justify-between gap-4 rounded-full bg-white/10 px-4 py-3 text-[13px] text-white shadow-[0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl ring-1 ring-white/15 sm:px-6">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/20">
-                <span className="text-[11px] font-semibold tracking-tight">e</span>
-              </div>
-              <span className="font-semibold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
-                Echt AI
-              </span>
+              <EchtWordmark className="h-8 w-auto" />
             </div>
 
             {/* Center nav */}
@@ -68,9 +67,11 @@ export default function LandingHero() {
               <button className="hidden text-white/80 hover:text-white transition-colors sm:inline-flex drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
                 Login
               </button>
-              <button className="rounded-full bg-white px-4 py-2 text-slate-950 shadow-sm hover:bg-white/90 transition-colors">
-                Start Scanning
-              </button>
+              <div className="[--primary:oklch(0.205_0_0)] [--primary-foreground:oklch(0.985_0_0)]">
+                <InteractiveHoverButton className="border-white/20 bg-white text-slate-950 shadow-sm">
+                  Start Scanning
+                </InteractiveHoverButton>
+              </div>
             </div>
           </header>
 
@@ -82,7 +83,17 @@ export default function LandingHero() {
                 <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white text-[10px]">
                   ⚡
                 </span>
-                Echt helps teams reduce tenancy fraud
+                <span
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.95), rgba(255,255,255,0.4))",
+                    backgroundSize: "200% 100%",
+                    animation: "shiny-text 3s linear infinite",
+                  }}
+                >
+                  Catch forged documents before they become tenancy fraud
+                </span>
                 <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-white/80 text-[10px] ring-1 ring-white/10">
                   i
                 </span>
@@ -94,7 +105,15 @@ export default function LandingHero() {
               <h1 className="mx-auto max-w-3xl font-sans text-4xl leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] sm:text-6xl">
                 Prove the truth behind
                 <br />
-                every document.
+                every{" "}
+                <Highlighter
+                  action="highlight"
+                  color="#87CEFA"
+                  animationDuration={900}
+                >
+                  <span className="font-bold">document</span>
+                </Highlighter>
+                .
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-[13px] leading-relaxed text-white/85 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] sm:text-[14px]">
                 Echt is the forensic layer for modern referencing. We automate the deep-scan of payslips, bank statements, and IDs to identify pixel-level manipulations and AI-generated fraud before they reach your desk.
@@ -103,14 +122,15 @@ export default function LandingHero() {
 
             {/* Media row */}
             <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
-              {/* Left media card (placeholder portrait + tooltip) */}
-              <div className="relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/15 backdrop-blur-xl">
+              {/* Left box: two stacked cards */}
+              <div className="relative flex flex-col gap-4 overflow-hidden rounded-3xl bg-white/10 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/15 backdrop-blur-xl">
                 <div className="absolute inset-0 opacity-[0.55]">
                   <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#4B00E0]/10 blur-3xl" />
                   <div className="absolute -right-20 -bottom-24 h-64 w-64 rounded-full bg-[#2D0066]/10 blur-3xl" />
                 </div>
 
-                <div className="relative">
+                {/* Card 1: portrait + Pixel-Level Forensics */}
+                <div className="relative flex-1 min-h-0">
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/15 shadow-inner">
                     <Image
                       src="/ai-model.png"
@@ -121,8 +141,7 @@ export default function LandingHero() {
                       className="object-cover"
                     />
                   </div>
-
-                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-black/30 px-4 py-3 text-[12px] text-white/85 shadow-sm backdrop-blur-xl ring-1 ring-white/15">
+                  <div className="absolute bottom-4 left-4 right-4 z-20 rounded-2xl bg-black/30 px-4 py-3 text-[12px] text-white/85 shadow-sm backdrop-blur-xl ring-1 ring-white/15">
                     <div className="flex items-center justify-between">
                       <div className="font-medium text-white">Pixel-Level Forensics</div>
                       <div className="text-white/70">92% flagged</div>
@@ -131,44 +150,51 @@ export default function LandingHero() {
                       <div className="h-2 w-[72%] rounded-full bg-white" />
                     </div>
                   </div>
+
+                  {/* Card 2: second pixel-level card (overlayed on the portrait) */}
+                  <div className="absolute bottom-20 left-4 right-4 z-10 rounded-2xl border border-white/15 bg-black/25 px-4 py-3 backdrop-blur-xl ring-1 ring-white/10">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-[12px] font-medium text-white">Edit &amp; compression detection</div>
+                        <div className="mt-0.5 text-[11px] text-white/70">Surfaces splice and recompress artifacts</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[11px] font-medium text-white">87%</div>
+                        <div className="text-[10px] text-white/60">accuracy</div>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-white/15">
+                      <div className="h-1.5 w-[87%] rounded-full bg-white/80" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right media card (placeholder dashboard) */}
+              {/* Right media card: Safari mockup with placeholder image */}
               <div className="relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/15 backdrop-blur-xl">
                 <div className="absolute inset-0">
                   <div className="absolute -left-28 -top-24 h-72 w-72 rounded-full bg-[#4B00E0]/15 blur-3xl" />
                   <div className="absolute -right-20 -bottom-24 h-72 w-72 rounded-full bg-[#2D0066]/15 blur-3xl" />
                 </div>
 
-                <div className="relative rounded-2xl border border-white/20 bg-black/20 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-                  <div className="flex items-center justify-between gap-4">
+                <div className="relative rounded-2xl border border-white/20 bg-black/20 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+                  <div className="mb-3 flex items-center justify-between gap-4">
                     <div>
-                      <div className="text-[12px] font-semibold text-white">File DNA Inspection</div>
-                      <div className="mt-1 text-[11px] text-white/70">Upload → signals → decision</div>
-                    </div>
-                    <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white/85">
-                      Linguistic Fingerprinting
+                      <div className="text-[12px] font-semibold text-white">
+                        Echt Forensic Viewer
+                      </div>
+                      <div className="mt-1 text-[11px] text-white/70">
+                        Live document inspection in browser
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-5 grid grid-cols-12 gap-4">
-                    <div className="col-span-5 rounded-xl bg-white/10 p-4 ring-1 ring-white/10">
-                      <div className="h-2 w-24 rounded bg-white/30" />
-                      <div className="mt-3 h-20 rounded-lg bg-white/15" />
-                      <div className="mt-3 space-y-2">
-                        <div className="h-2 w-20 rounded bg-white/30" />
-                        <div className="h-2 w-28 rounded bg-white/30" />
-                      </div>
-                    </div>
-                    <div className="col-span-7 rounded-xl bg-white/10 p-4 ring-1 ring-white/10">
-                      <div className="flex items-center justify-between">
-                        <div className="h-2 w-28 rounded bg-white/30" />
-                        <div className="h-7 w-16 rounded-full bg-white/15" />
-                      </div>
-                      <div className="mt-3 h-24 rounded-lg bg-white/15" />
-                      <div className="mt-3 h-20 rounded-lg bg-white/15" />
-                    </div>
+                  <div className="relative w-full">
+                    <Safari
+                      url="app.useecht.com/dashboard"
+                      frameSrc="/dashboard"
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -203,6 +229,14 @@ export default function LandingHero() {
 
       {/* Local animation keyframes */}
       <style jsx>{`
+        @keyframes shiny-text {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
         @keyframes blob-slow {
           0% {
             transform: translate3d(0, 0, 0) scale(1);
