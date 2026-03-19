@@ -97,33 +97,44 @@ const cardVariants: Variants = {
   },
 };
 
+const FRAUD_CASES_PER_1000_APPLICATIONS = 2.9;
+const FRAUD_RATE = FRAUD_CASES_PER_1000_APPLICATIONS / 1000;
+const COST_PER_COMPROMISED_TENANCY_GBP = 31_886;
+
+const SLIDER_MIN = 5;
+const SLIDER_MAX = 1000;
+
 export function RoiCalculator() {
   const [tenanciesPerMonth, setTenanciesPerMonth] = useState<number>(250);
 
   const annualExposure = useMemo(() => {
-    const fraudRate = 0.015;
-    const costPerBadTenancy = 30000;
-    return tenanciesPerMonth * 12 * fraudRate * costPerBadTenancy;
+    return tenanciesPerMonth * 12 * FRAUD_RATE * COST_PER_COMPROMISED_TENANCY_GBP;
   }, [tenanciesPerMonth]);
 
-  const projectedFraudulentAppsPerYear = useMemo(() => {
-    return Math.round(tenanciesPerMonth * 12 * 0.015);
+  const { projectedFraudulentDisplay } = useMemo(() => {
+    const raw = tenanciesPerMonth * 12 * FRAUD_RATE;
+    const rounded = Math.round(raw);
+    const projectedFraudulentDisplay =
+      raw > 0 && rounded === 0
+        ? "< 1"
+        : rounded.toLocaleString("en-GB");
+    return { projectedFraudulentDisplay };
   }, [tenanciesPerMonth]);
 
   return (
-    <section className="bg-slate-50 py-24">
+    <section className="bg-slate-50 py-16 sm:py-20 md:py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-8 lg:px-0">
         <div className="relative z-10 mb-6">
           <p className="text-sm font-medium uppercase tracking-widest text-purple-600">
             COST OF INACTION
           </p>
-          <h2 className="mb-10 text-4xl font-bold tracking-tight text-slate-900">
+          <h2 className="mb-8 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:mb-10 sm:text-4xl">
             The math you can’t afford to ignore.
           </h2>
         </div>
 
         <motion.div
-          className="relative z-10 rounded-3xl border-2 border-slate-200 bg-white p-10 shadow-[0_12px_40px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/5 sm:p-12"
+          className="relative z-10 rounded-3xl border-2 border-slate-200 bg-white p-6 shadow-[0_12px_40px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/5 sm:p-10 md:p-12"
           variants={cardVariants}
           initial="offscreen"
           whileInView="onscreen"
@@ -132,25 +143,38 @@ export function RoiCalculator() {
           <div className="grid gap-10 md:grid-cols-2 md:gap-12">
             {/* Left column – input */}
             <div className="space-y-6">
-              <h2 className="font-sans text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="font-sans text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 Calculate your annual exposure.
               </h2>
 
               <div className="space-y-4">
-                <div className="text-sm text-slate-600">
-                  Monthly referencing volume:{" "}
-                  <span className="font-semibold text-slate-900">
-                    {tenanciesPerMonth.toLocaleString()}
-                  </span>{" "}
-                  tenancies
+                <p className="text-sm text-slate-600">
+                  <span className="font-medium text-slate-800">Use the slider</span> to match
+                  how many tenant applications your team references in an average month (small
+                  letting desks to large platforms).
+                </p>
+
+                <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm text-slate-600">
+                  <span>
+                    Monthly referencing volume:{" "}
+                    <span className="font-semibold text-slate-900">
+                      {tenanciesPerMonth.toLocaleString("en-GB")}
+                    </span>{" "}
+                    applications
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {SLIDER_MIN.toLocaleString("en-GB")}–{SLIDER_MAX.toLocaleString("en-GB")} / month
+                  </span>
                 </div>
 
                 <input
                   type="range"
-                  min={50}
-                  max={1000}
+                  min={SLIDER_MIN}
+                  max={SLIDER_MAX}
+                  step={1}
                   value={tenanciesPerMonth}
                   onChange={(e) => setTenanciesPerMonth(Number(e.target.value))}
+                  aria-label="Monthly tenancy applications"
                   className="h-1 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#a855f7]"
                 />
               </div>
@@ -158,18 +182,23 @@ export function RoiCalculator() {
 
             {/* Right column – output */}
             <div className="flex flex-col md:items-end">
-              <div className="flex w-full flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-8">
-                <div className="w-full">
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Projected fraudulent applications (1.5%)</span>
-                    <span className="text-right">
-                      {projectedFraudulentAppsPerYear.toLocaleString()} / year
+              <div className="flex w-full flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-8">
+                <div className="w-full min-w-0">
+                  <div className="flex flex-col gap-1 text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <span className="max-w-none text-sm leading-snug sm:max-w-[min(100%,14rem)] md:max-w-none">
+                      Applications flagged as fraudulent / year (
+                      {FRAUD_CASES_PER_1000_APPLICATIONS} per 1,000)
+                    </span>
+                    <span className="shrink-0 text-left tabular-nums sm:text-right">
+                      {projectedFraudulentDisplay} / yr
                     </span>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between text-slate-600">
-                    <span>Average cost per compromised tenancy</span>
-                    <span className="text-right">£30,000</span>
+                  <div className="mt-4 flex flex-col gap-1 text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <span className="text-sm">Avg. cost per problem tenancy (eviction band)</span>
+                    <span className="shrink-0 text-left tabular-nums sm:text-right">
+                      £{COST_PER_COMPROMISED_TENANCY_GBP.toLocaleString("en-GB")}
+                    </span>
                   </div>
 
                   <div className="my-6 border-t border-slate-200" />
@@ -178,16 +207,16 @@ export function RoiCalculator() {
                     <div className="text-[12px] font-medium uppercase tracking-[0.2em] text-slate-500">
                       Estimated Annual Fraud Exposure
                     </div>
-                    <div className="relative inline-block">
+                    <div className="relative inline-block max-w-full overflow-x-auto">
                       {/* Solid fallback if gradient clip is unsupported */}
                       <span
-                        className="text-6xl font-bold tabular-nums tracking-tight text-violet-700"
+                        className="text-4xl font-bold tabular-nums tracking-tight text-violet-700 sm:text-5xl md:text-6xl"
                         aria-hidden
                       >
-                        £{annualExposure.toLocaleString()}
+                        £{Math.round(annualExposure).toLocaleString("en-GB")}
                       </span>
-                      <span className="absolute left-0 top-0 text-6xl font-bold tabular-nums tracking-tight bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent]">
-                        £{annualExposure.toLocaleString()}
+                      <span className="absolute left-0 top-0 text-4xl font-bold tabular-nums tracking-tight bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent] sm:text-5xl md:text-6xl">
+                        £{Math.round(annualExposure).toLocaleString("en-GB")}
                       </span>
                     </div>
                   </div>

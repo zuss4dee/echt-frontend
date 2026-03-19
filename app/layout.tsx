@@ -27,12 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en" className={cn("scroll-smooth font-sans", geist.variable)}>
       <body
         suppressHydrationWarning
-        className={`${inter.className} ${inter.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.className} ${inter.variable} ${geistMono.variable} relative min-h-dvh bg-white antialiased text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50`}
       >
-        {children}
+        <div className="relative z-[1]">{children}</div>
       </body>
     </html>
   );

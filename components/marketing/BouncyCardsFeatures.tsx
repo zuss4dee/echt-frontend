@@ -8,14 +8,17 @@ import { InteractiveHoverButton } from "@/registry/magicui/interactive-hover-but
 
 export function BouncyCardsFeatures() {
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-16 text-slate-800 sm:py-20">
-        <div className="mb-10 flex flex-col items-start justify-between gap-4 md:mb-12 md:flex-row md:items-end md:px-8">
-          <h2 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
+    <section id="how-echt-works" className="scroll-mt-24 bg-white">
+      <div className="mx-auto max-w-7xl px-3 py-14 text-slate-800 sm:px-4 sm:py-20">
+        <div className="mb-10 flex flex-col items-stretch justify-between gap-4 md:mb-12 md:flex-row md:items-end md:px-8">
+          <h2 className="max-w-xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Forensic checks for every tenancy,{" "}
             <span className="text-slate-600">in one workflow</span>
           </h2>
-          <InteractiveHoverButton className="whitespace-nowrap border-slate-900/15 bg-slate-900 text-white shadow-xl transition-colors hover:bg-slate-800 [--primary:#ffffff] [--primary-foreground:#0f172a]">
+          <InteractiveHoverButton
+            href="/login"
+            className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 text-white shadow-xl transition-colors hover:bg-slate-800 sm:w-auto sm:whitespace-nowrap [--primary:#ffffff] [--primary-foreground:#0f172a]"
+          >
             Run a Free Scan
           </InteractiveHoverButton>
         </div>
@@ -76,7 +79,7 @@ function BounceCard({
       whileHover={{ scale: 0.97, rotate: "-1deg" }}
       transition={{ type: "spring", stiffness: 400, damping: 24 }}
       className={cn(
-        "group relative min-h-[300px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-8 shadow-sm",
+        "group relative min-h-[260px] cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-5 shadow-sm sm:min-h-[300px] sm:p-8",
         className,
       )}
     >
@@ -87,7 +90,7 @@ function BounceCard({
 
 function CardTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="relative z-10 mx-auto max-w-[14ch] text-center text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
+    <h3 className="relative z-10 mx-auto max-w-[16ch] text-center text-xl font-semibold tracking-tight text-slate-900 sm:max-w-[14ch] sm:text-2xl md:text-3xl">
       {children}
     </h3>
   );
