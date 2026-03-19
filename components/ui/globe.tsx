@@ -9,7 +9,6 @@ const MOVEMENT_DAMPING = 1400
 const GLOBE_CONFIG: COBEOptions = {
   width: 800,
   height: 800,
-  onRender: () => {},
   devicePixelRatio: 2,
   phi: 0,
   theta: 0.3,
@@ -83,16 +82,25 @@ export function Globe({
       ...config,
       width: widthRef.current * 2,
       height: widthRef.current * 2,
-      onRender: (state) => {
-        if (!pointerInteracting.current) phiRef.current += 0.005
-        state.phi = phiRef.current + rs.get()
-        state.width = widthRef.current * 2
-        state.height = widthRef.current * 2
-      },
     })
+
+    let rafId = 0
+    const tick = () => {
+      rafId = requestAnimationFrame(tick)
+      if (pointerInteracting.current === null) {
+        phiRef.current += 0.005
+      }
+      globe.update({
+        phi: phiRef.current + rs.get(),
+        width: widthRef.current * 2,
+        height: widthRef.current * 2,
+      })
+    }
+    rafId = requestAnimationFrame(tick)
 
     setTimeout(() => (canvasRef.current!.style.opacity = "1"), 0)
     return () => {
+      cancelAnimationFrame(rafId)
       globe.destroy()
       window.removeEventListener("resize", onResize)
     }

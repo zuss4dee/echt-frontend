@@ -27,7 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("scroll-smooth font-sans", geist.variable)}>
+    <html
+      lang="en"
+      className={cn("scroll-smooth font-sans", geist.variable)}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body
         suppressHydrationWarning
         className={`${inter.className} ${inter.variable} ${geistMono.variable} relative min-h-dvh bg-white antialiased text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50`}
