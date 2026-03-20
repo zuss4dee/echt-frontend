@@ -47,7 +47,7 @@ export default function LandingPage() {
                 </div>
                 <nav className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2 text-xs font-medium text-white/85 sm:flex-none sm:gap-6 sm:text-[13px] md:gap-8">
                   <Link
-                    href="/analyze"
+                    href="/login"
                     className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
                   >
                     Platform
@@ -115,7 +115,7 @@ export default function LandingPage() {
 
               <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center sm:gap-4">
                 <InteractiveHoverButton
-                  href="/analyze"
+                  href="/login"
                   className="w-full justify-center rounded-full border-0 bg-white px-6 py-3 text-slate-900 shadow-lg transition-colors hover:bg-slate-900 sm:w-auto sm:min-w-[180px] sm:px-8 [--primary:#ffffff] [--primary-foreground:#ffffff]"
                 >
                   Run a Free Scan
@@ -203,7 +203,7 @@ export default function LandingPage() {
 
                   <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mx-auto sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center">
                     <InteractiveHoverButton
-                      href="/analyze"
+                      href="/login"
                       className="w-full justify-center border-white/10 bg-white px-6 py-3 text-zinc-900 transition-colors hover:bg-slate-900 sm:w-auto [--primary:#ffffff] [--primary-foreground:#ffffff] group-hover:text-white"
                     >
                       Run a Free Scan

@@ -1,37 +1,28 @@
-import Link from "next/link";
+import { MagicLinkLoginForm } from "@/components/auth/MagicLinkLoginForm";
 
 export const metadata = {
   title: "Sign in — Echt",
-  description: "Access the Echt forensic platform.",
+  description: "Sign in to the Echt dashboard with a secure email link.",
 };
 
-/**
- * Placeholder: replace with real auth (e.g. Supabase Auth, Clerk) when ready.
- */
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const callbackError = params.error === "true";
+
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-10 text-center shadow-2xl backdrop-blur">
-        <h1 className="text-2xl font-semibold tracking-tight">Sign in to Echt</h1>
-        <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-          Login and sign-up will live here—connect your auth provider and redirect to the app
-          dashboard.
-        </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/analyze"
-            className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white px-6 py-2.5 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-100"
-          >
-            Open platform
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border border-white/15 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-          >
-            Marketing site
-          </Link>
-        </div>
+    <main className="relative flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+      {/* Subtle glow behind the card */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div className="absolute left-1/2 top-[42%] h-[min(90vw,520px)] w-[min(90vw,520px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/25 blur-[100px]" />
+        <div className="absolute left-1/2 top-[48%] h-[min(100vw,640px)] w-[min(110vw,720px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/20 blur-[128px]" />
+        <div className="absolute right-[15%] top-[28%] h-64 w-64 rounded-full bg-indigo-500/15 blur-[80px]" />
       </div>
+
+      <MagicLinkLoginForm callbackError={callbackError} />
     </main>
   );
 }

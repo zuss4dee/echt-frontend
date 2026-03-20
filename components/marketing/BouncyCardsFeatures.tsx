@@ -16,7 +16,7 @@ export function BouncyCardsFeatures() {
             <span className="text-slate-600">in one workflow</span>
           </h2>
           <InteractiveHoverButton
-            href="/analyze"
+            href="/login"
             className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 text-white shadow-xl transition-colors hover:bg-slate-800 sm:w-auto sm:whitespace-nowrap [--primary:#ffffff] [--primary-foreground:#0f172a]"
           >
             Run a Free Scan
