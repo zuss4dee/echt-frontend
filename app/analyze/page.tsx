@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const MAX_FILE_SIZE_MB = 200;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -112,41 +112,43 @@ export default function Home() {
   >([]);
   const [loadingText, setLoadingText] = useState("Encrypting & Uploading...");
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadRecentScans() {
-      if (!supabase) return;
-      try {
-        const { data, error } = await supabase
-          .from("scans")
-          .select("id, filename, verdict, created_at")
-          .order("created_at", { ascending: false })
-          .limit(5);
-        if (error) {
-          // eslint-disable-next-line no-console
-          console.error("Failed to fetch recent scans:", error);
-          return;
-        }
-        if (!cancelled && data) {
-          setRecentScans(
-            data.map((row: any) => ({
-              id: String(row.id),
-              filename: row.filename ?? "Untitled document",
-              verdict: row.verdict ?? null,
-              created_at: row.created_at ?? null,
-            })),
-          );
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Unexpected error loading recent scans:", e);
+  type RecentScanRow = {
+    id: string | number;
+    filename: string | null;
+    verdict: string | null;
+    created_at: string | null;
+  };
+
+  const loadRecentScans = useCallback(async () => {
+    const supabase = createSupabaseBrowserClient();
+    try {
+      const { data, error } = await supabase
+        .from("scans")
+        .select("id, filename, verdict, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error) {
+        console.error("Failed to fetch recent scans:", error);
+        return;
       }
+
+      const rows = (data ?? []) as RecentScanRow[];
+      setRecentScans(
+        rows.map((row) => ({
+          id: String(row.id),
+          filename: row.filename ?? "Untitled document",
+          verdict: row.verdict ?? null,
+          created_at: row.created_at ?? null,
+        })),
+      );
+    } catch (e) {
+      console.error("Unexpected error loading recent scans:", e);
     }
-    loadRecentScans();
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void loadRecentScans();
+  }, [loadRecentScans]);
 
   const formatTimeAgo = useCallback((iso: string | null | undefined): string => {
     if (!iso) return "Just now";
@@ -206,11 +208,34 @@ export default function Home() {
       form.append("file", file);
       form.append("doc_type_key", docTypeKey);
       try {
-        const apiBase = process.env.NEXT_PUBLIC_ECHT_API_URL ?? "";
-        const res = await fetch(`${apiBase.replace(/\/$/, "") || ""}/api/analyze`, {
-          method: "POST",
-          body: form,
-        });
+        const supabase = createSupabaseBrowserClient();
+
+        // Securely identify the user by forwarding the Supabase JWT to your backend.
+        // Backend must validate this token server-side.
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (sessionError || !session?.access_token) {
+          throw new Error("Your session expired. Please sign in again.");
+        }
+
+        const apiBase =
+          process.env.NEXT_PUBLIC_API_URL ??
+          process.env.NEXT_PUBLIC_ECHT_API_URL ??
+          "";
+
+        const res = await fetch(
+          `${apiBase.replace(/\/$/, "") || ""}/api/analyze`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: form,
+          },
+        );
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.detail ?? `Request failed: ${res.status}`);
@@ -218,6 +243,8 @@ export default function Home() {
         const data: AnalyzeResponse = await res.json();
         setResult(data);
         setActiveView("result");
+        // Keep Recent Scans in sync after each successful analysis.
+        await loadRecentScans();
       } catch (e) {
         const message = e instanceof Error ? e.message : "Upload failed";
         setUploadError(message);
@@ -226,7 +253,7 @@ export default function Home() {
         setIsUploading(false);
       }
     },
-    [docTypeKey, addToast]
+    [docTypeKey, addToast, loadRecentScans]
   );
 
   const onDrop = useCallback(
