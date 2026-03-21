@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getWhopHasAccessFromDb } from "@/lib/whop-entitlements";
 
 const ANALYZE_PATH = "/analyze";
 const ONBOARDING_PATH = "/onboarding";
@@ -64,11 +65,21 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    const hasWhop = await getWhopHasAccessFromDb(supabase, user?.email);
     // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
     const onboardingDone = user?.user_metadata?.onboarding_complete === true;
-    const nextPath = onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH;
+    const nextPath = !hasWhop
+      ? "/pricing"
+      : onboardingDone
+        ? ANALYZE_PATH
+        : ONBOARDING_PATH;
 
-    const response = NextResponse.redirect(new URL(nextPath, origin));
+    const redirectUrl = new URL(nextPath, origin);
+    if (!hasWhop) {
+      redirectUrl.searchParams.set("subscribe", "1");
+    }
+
+    const response = NextResponse.redirect(redirectUrl);
     sessionCookies.forEach(({ name, value, options }) => {
       response.cookies.set(name, value, options);
     });

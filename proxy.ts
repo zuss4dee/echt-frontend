@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getWhopHasAccessFromDb } from "@/lib/whop-entitlements";
 
 /**
  * Refreshes Supabase auth cookies on matching routes and protects app routes.
@@ -56,6 +57,22 @@ export async function proxy(request: NextRequest) {
 
   // Signed-in users should not stay on the login page.
   if (pathname === "/login" && user) {
+    const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
+    if (!hasWhop) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/pricing";
+      redirectUrl.searchParams.delete("error");
+      redirectUrl.searchParams.set("subscribe", "1");
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(
+          cookie.name,
+          cookie.value,
+          cookie as CookieOptions,
+        );
+      });
+      return redirectResponse;
+    }
     const onboardingDone = user.user_metadata?.onboarding_complete === true;
     const dest = onboardingDone ? "/analyze" : "/onboarding";
     const redirectUrl = request.nextUrl.clone();
@@ -89,6 +106,25 @@ export async function proxy(request: NextRequest) {
     });
 
     return redirectResponse;
+  }
+
+  if (isProtectedApp && user) {
+    const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
+    if (!hasWhop) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/pricing";
+      redirectUrl.searchParams.delete("error");
+      redirectUrl.searchParams.set("subscribe", "1");
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(
+          cookie.name,
+          cookie.value,
+          cookie as CookieOptions,
+        );
+      });
+      return redirectResponse;
+    }
   }
 
   return supabaseResponse;

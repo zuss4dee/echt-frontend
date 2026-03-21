@@ -7,6 +7,7 @@ import { LiquidEther } from "@/components/ui/liquid-ether";
 import Silk from "@/components/ui/silk";
 import { InteractiveHoverButton } from "@/registry/magicui/interactive-hover-button";
 import { BouncyCardsFeatures } from "@/components/marketing/BouncyCardsFeatures";
+import { PricingSection } from "@/components/marketing/PricingSection";
 import { RoiCalculator } from "@/components/marketing/RoiCalculator";
 import { echtSocialLinks } from "@/lib/social-links";
 
@@ -52,6 +53,13 @@ export default function LandingPage() {
                   >
                     Platform
                   </Link>
+                  <button
+                    type="button"
+                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
+                    onClick={() => scrollToId("pricing")}
+                  >
+                    Pricing
+                  </button>
                   <button
                     type="button"
                     className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
@@ -160,6 +168,8 @@ export default function LandingPage() {
         <RoiCalculator />
 
         <BouncyCardsFeatures />
+
+        <PricingSection />
 
         {/* Final CTA */}
         <section className="w-full bg-black py-12 sm:py-24">
@@ -315,6 +325,12 @@ export default function LandingPage() {
               </div>
             </div>
             <nav className="flex flex-col gap-3 sm:flex-row sm:gap-8" aria-label="Footer">
+              <Link
+                href="/pricing"
+                className="font-medium text-zinc-400 transition-colors hover:text-white"
+              >
+                Pricing
+              </Link>
               <Link
                 href="/contact"
                 className="font-medium text-zinc-400 transition-colors hover:text-white"
