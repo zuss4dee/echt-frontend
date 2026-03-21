@@ -114,9 +114,10 @@ export default function LandingPage() {
               </p>
 
               <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+                {/* `!` beats hero ancestor `text-white`. Do not use CSS vars that force white foreground here. */}
                 <InteractiveHoverButton
                   href="/login"
-                  className="w-full justify-center rounded-full border-0 bg-white px-6 py-3 text-slate-900 shadow-lg transition-colors hover:bg-slate-900 sm:w-auto sm:min-w-[180px] sm:px-8 [--primary:#ffffff] [--primary-foreground:#ffffff]"
+                  className="w-full justify-center rounded-full border-0 !bg-white px-6 py-3 !text-slate-900 shadow-lg transition-colors hover:!bg-black hover:!text-white group-hover:!text-white hover:shadow-md sm:w-auto sm:min-w-[180px] sm:px-8"
                 >
                   Run a Free Scan
                 </InteractiveHoverButton>
@@ -204,13 +205,13 @@ export default function LandingPage() {
                   <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mx-auto sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center">
                     <InteractiveHoverButton
                       href="/login"
-                      className="w-full justify-center border-white/10 bg-white px-6 py-3 text-zinc-900 transition-colors hover:bg-slate-900 sm:w-auto [--primary:#ffffff] [--primary-foreground:#ffffff] group-hover:text-white"
+                      className="w-full justify-center border-white/10 !bg-white !text-zinc-900 transition-colors hover:!bg-slate-900 hover:!text-white group-hover:!text-white sm:w-auto"
                     >
                       Run a Free Scan
                     </InteractiveHoverButton>
                     <InteractiveHoverButton
                       href="/contact"
-                      className="w-full justify-center border-white/20 bg-white/10 px-6 py-3 text-white transition-colors hover:bg-white/20 sm:w-auto [--primary:#ffffff] [--primary-foreground:#0f172a]"
+                      className="w-full justify-center border-white/20 bg-white/10 !text-white transition-colors hover:bg-white/20 hover:!text-white sm:w-auto"
                     >
                       Contact Sales
                     </InteractiveHoverButton>

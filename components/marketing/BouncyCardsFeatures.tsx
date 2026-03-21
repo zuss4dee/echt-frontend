@@ -17,7 +17,7 @@ export function BouncyCardsFeatures() {
           </h2>
           <InteractiveHoverButton
             href="/login"
-            className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 text-white shadow-xl transition-colors hover:bg-slate-800 sm:w-auto sm:whitespace-nowrap [--primary:#ffffff] [--primary-foreground:#0f172a]"
+            className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 !text-white shadow-xl transition-colors hover:bg-slate-800 hover:!text-white sm:w-auto sm:whitespace-nowrap"
           >
             Run a Free Scan
           </InteractiveHoverButton>
