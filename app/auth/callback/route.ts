@@ -33,8 +33,8 @@ export async function GET(request: Request) {
 
   try {
     const cookieStore = await cookies();
-    // Placeholder redirect; Supabase attaches Set-Cookie via setAll. Path updated after session exists.
-    const redirectResponse = NextResponse.redirect(new URL(ANALYZE_PATH, origin));
+    /** Capture Set-Cookie options so the final redirect keeps a valid session (path/httpOnly/etc.). */
+    const sessionCookies: { name: string; value: string; options: CookieOptions }[] = [];
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
@@ -44,11 +44,11 @@ export async function GET(request: Request) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
-            redirectResponse.cookies.set(
+            sessionCookies.push({
               name,
               value,
-              options as CookieOptions,
-            );
+              options: options as CookieOptions,
+            });
           });
         },
       },
@@ -64,18 +64,15 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const onboardingDone = Boolean(user?.user_metadata?.onboarding_complete);
+    // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
+    const onboardingDone = user?.user_metadata?.onboarding_complete === true;
     const nextPath = onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH;
 
-    if (nextPath === ANALYZE_PATH) {
-      return redirectResponse;
-    }
-
-    const finalResponse = NextResponse.redirect(new URL(nextPath, origin));
-    redirectResponse.cookies.getAll().forEach((cookie) => {
-      finalResponse.cookies.set(cookie.name, cookie.value);
+    const response = NextResponse.redirect(new URL(nextPath, origin));
+    sessionCookies.forEach(({ name, value, options }) => {
+      response.cookies.set(name, value, options);
     });
-    return finalResponse;
+    return response;
   } catch {
     return redirectWithError();
   }

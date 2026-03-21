@@ -22,5 +22,6 @@ export function getProfileLetter(displayName: string): string {
 export function isOnboardingComplete(
   metadata: UserProfileMetadata | null | undefined,
 ): boolean {
-  return Boolean(metadata?.onboarding_complete);
+  // Must be strict true — Boolean("false") is true in JS if metadata ever stores strings.
+  return metadata?.onboarding_complete === true;
 }

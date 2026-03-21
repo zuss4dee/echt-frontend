@@ -293,7 +293,7 @@ export default function Home() {
       }
       setIsUploading(true);
       setResult(null);
-      setActiveView("result");
+      // Stay on "landing" until we have a successful result — avoids stuck "result" view on errors.
       const form = new FormData();
       form.append("file", file);
       form.append("doc_type_key", docTypeKey);
@@ -327,8 +327,28 @@ export default function Home() {
           },
         );
         if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail ?? `Request failed: ${res.status}`);
+          const errBody = (await res.json().catch(() => ({}))) as {
+            detail?: unknown;
+            message?: string;
+          };
+          const detail = errBody.detail ?? errBody.message;
+          let message: string;
+          if (typeof detail === "string") {
+            message = detail;
+          } else if (Array.isArray(detail)) {
+            message = detail
+              .map((d) =>
+                typeof d === "object" && d !== null && "msg" in d
+                  ? String((d as { msg: unknown }).msg)
+                  : String(d),
+              )
+              .join(" ");
+          } else if (detail != null && typeof detail === "object" && "msg" in detail) {
+            message = String((detail as { msg: unknown }).msg);
+          } else {
+            message = `Request failed (${res.status})`;
+          }
+          throw new Error(message || `Request failed (${res.status})`);
         }
         const data: AnalyzeResponse = await res.json();
         setResult(data);
@@ -340,6 +360,8 @@ export default function Home() {
         const message = e instanceof Error ? e.message : "Upload failed";
         setUploadError(message);
         addToast(message, "error");
+        setActiveView("landing");
+        setResult(null);
       } finally {
         setIsUploading(false);
       }

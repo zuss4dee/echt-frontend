@@ -56,7 +56,7 @@ export async function proxy(request: NextRequest) {
 
   // Signed-in users should not stay on the login page.
   if (pathname === "/login" && user) {
-    const onboardingDone = Boolean(user.user_metadata?.onboarding_complete);
+    const onboardingDone = user.user_metadata?.onboarding_complete === true;
     const dest = onboardingDone ? "/analyze" : "/onboarding";
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = dest;
