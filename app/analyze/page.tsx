@@ -551,14 +551,6 @@ export default function Home() {
           >
             New Analysis
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
-            className="hidden"
-            onChange={onFileInputChange}
-            disabled={isUploading}
-          />
           <button
             type="button"
             onClick={handleResetScan}
@@ -723,6 +715,17 @@ export default function Home() {
       className="flex min-h-0 flex-1 flex-col font-sans"
       style={{ backgroundColor: COLORS.pageBg, color: COLORS.textPrimary }}
     >
+      {/* One hidden input for whole page — avoids lost ref when landing/workspace views swap */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
+        className="hidden"
+        tabIndex={-1}
+        onChange={onFileInputChange}
+        disabled={isUploading}
+        aria-hidden
+      />
       {/* Toast notifications - top right */}
       <div
         className="fixed right-4 top-4 z-[100] flex flex-col gap-2"
@@ -814,14 +817,6 @@ export default function Home() {
 
               {/* Center upload (matches screenshot) */}
               <div className="mx-auto mt-14 flex w-full max-w-3xl flex-col items-center text-center">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
-                  className="hidden"
-                  onChange={onFileInputChange}
-                  disabled={isUploading}
-                />
                 <div
                   className="w-full rounded-3xl border-2 border-dashed bg-white px-12 py-12 shadow-sm transition"
                   style={{
