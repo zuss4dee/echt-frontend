@@ -19,7 +19,7 @@ export default function LandingPage() {
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col pb-12">
-        {/* Hero — full-viewport silk + glass nav / center stack (reference layout) */}
+        {/* Hero: full-viewport silk + glass nav / center stack (reference layout) */}
         <div className="relative min-h-svh w-full overflow-hidden text-white">
           <Silk
             speed={5}
@@ -109,7 +109,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="mx-auto mt-5 max-w-lg text-balance px-1 text-center text-[15px] leading-relaxed text-white/75 sm:mt-6 sm:px-0 sm:text-base">
-                The forensic layer for tenant referencing—deep scans on payslips, bank
+                The forensic layer for tenant referencing. Deep scans on payslips, bank
                 statements, and IDs so you catch tampering before approvals.
               </p>
 
@@ -230,7 +230,7 @@ export default function LandingPage() {
               At a glance
             </p>
             <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-zinc-600 sm:mb-14">
-              Hard numbers you can plan around—no vanity metrics, no borrowed case studies.
+              Hard numbers you can plan around, with no vanity metrics and no borrowed case studies.
             </p>
             <div className="grid gap-12 md:grid-cols-3 md:gap-10">
               <div className="flex flex-col items-center text-center">
@@ -241,7 +241,7 @@ export default function LandingPage() {
                   Per document
                 </p>
                 <p className="mt-2 max-w-xs text-sm leading-relaxed text-zinc-600">
-                  Target forensic pass time for a typical payslip, bank statement, or ID—metadata,
+                  Target forensic pass time for a typical payslip, bank statement, or ID: metadata,
                   tamper signals, and anomaly flags in one run.
                 </p>
               </div>
@@ -265,7 +265,7 @@ export default function LandingPage() {
                   Workflow
                 </p>
                 <p className="mt-2 max-w-xs text-sm leading-relaxed text-zinc-600">
-                  Same queue for layered PDFs, exports, and edits—evidence surfaced as structured
+                  Same queue for layered PDFs, exports, and edits. Evidence is surfaced as structured
                   output your team can sign off on.
                 </p>
               </div>

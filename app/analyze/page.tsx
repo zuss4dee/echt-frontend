@@ -7,18 +7,47 @@ import {
   Dna,
   FileStack,
   FileText,
-  FolderOpen,
+  HelpCircle,
   Info,
-  Play,
+  LogOut,
+  Mail,
   PlusSquare,
   Search,
+  Shield,
   X,
 } from "lucide-react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import {
+  getProfileLetter,
+  isOnboardingComplete,
+  type UserProfileMetadata,
+} from "@/lib/user-metadata";
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
+import { EchtWordmark } from "@/components/EchtLogo";
+import { useAnalyzeSidebarContent } from "@/contexts/analyze-sidebar-content";
 
-const MAX_FILE_SIZE_MB = 200;
+type LocalUserProfile = {
+  displayName: string;
+  role: string;
+  email: string;
+  phone: string;
+  companyName: string;
+  monthlyReferences: string;
+};
+
+const EMPTY_PROFILE: LocalUserProfile = {
+  displayName: "",
+  role: "",
+  email: "",
+  phone: "",
+  companyName: "",
+  monthlyReferences: "",
+};
+
+const MAX_FILE_SIZE_MB = 50;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const TOAST_AUTO_DISMISS_MS = 6000;
 
@@ -45,10 +74,15 @@ const COLORS = {
 const DOC_CLASS_OPTIONS = [
   { value: "visa_refusal", label: "Visa / UKVI Refusal" },
   { value: "medical_letter", label: "Medical Note" },
-  { value: "university_letter", label: "University Letter" },
+  { value: "income_evidence", label: "Payslip / bank statement" },
 ] as const;
 
 type DocTypeKey = (typeof DOC_CLASS_OPTIONS)[number]["value"];
+
+function coerceDocTypeKey(key: string): DocTypeKey {
+  const allowed = DOC_CLASS_OPTIONS.map((o) => o.value);
+  return (allowed as string[]).includes(key) ? (key as DocTypeKey) : "income_evidence";
+}
 
 interface PolicyResult {
   verdict: "RED" | "AMBER" | "GREEN";
@@ -70,6 +104,10 @@ interface DetectorSummaryItem {
 interface AnalyzeResponse {
   filename: string;
   doc_type_key: string;
+  doc_type_inference?: {
+    confidence: string;
+    reason: string;
+  };
   forgery_score: number;
   trust_score: number;
   red_flags: string[];
@@ -87,8 +125,9 @@ interface AnalyzeResponse {
 }
 
 export default function Home() {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [docTypeKey, setDocTypeKey] = useState<DocTypeKey>("visa_refusal");
+  const [docTypeKey, setDocTypeKey] = useState<DocTypeKey>("income_evidence");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [activeView, setActiveView] = useState<"landing" | "result">("landing");
   const [isDragging, setIsDragging] = useState(false);
@@ -146,9 +185,50 @@ export default function Home() {
     }
   }, []);
 
+  const [authReady, setAuthReady] = useState(false);
+  const [userProfile, setUserProfile] = useState<LocalUserProfile>(EMPTY_PROFILE);
+
   useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (!session?.user) {
+          router.replace("/login");
+          return;
+        }
+        const meta = session.user.user_metadata as UserProfileMetadata | undefined;
+        if (!isOnboardingComplete(meta)) {
+          router.replace("/onboarding");
+          return;
+        }
+        const u = session.user;
+        setUserProfile({
+          displayName: (meta?.full_name as string) || "",
+          role: (meta?.role_in_company as string) || "",
+          email: u.email ?? "",
+          phone: (meta?.phone as string) || "",
+          companyName: (meta?.company_name as string) || "",
+          monthlyReferences: (meta?.monthly_references as string) || "",
+        });
+        setAuthReady(true);
+      } catch {
+        if (!cancelled) router.replace("/login");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  useEffect(() => {
+    if (!authReady) return;
     void loadRecentScans();
-  }, [loadRecentScans]);
+  }, [authReady, loadRecentScans]);
 
   const formatTimeAgo = useCallback((iso: string | null | undefined): string => {
     if (!iso) return "Just now";
@@ -178,6 +258,16 @@ export default function Home() {
     }, 2000);
     return () => clearTimeout(timer);
   }, [isLoading]);
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.signOut();
+    } finally {
+      // Force a clean re-route to the auth page.
+      window.location.href = "/login";
+    }
+  }, []);
 
   const handleResetScan = useCallback(() => {
     setResult(null);
@@ -242,6 +332,7 @@ export default function Home() {
         }
         const data: AnalyzeResponse = await res.json();
         setResult(data);
+        setDocTypeKey(coerceDocTypeKey(data.doc_type_key));
         setActiveView("result");
         // Keep Recent Scans in sync after each successful analysis.
         await loadRecentScans();
@@ -295,26 +386,36 @@ export default function Home() {
   const [redFlagsModalOpen, setRedFlagsModalOpen] = useState(false);
   const [extractedTextModalOpen, setExtractedTextModalOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState({ displayName: "Sarah Jenkins", role: "Senior Ops Analyst" });
   const [scoreInfoPopover, setScoreInfoPopover] = useState<"forgery" | "trust" | null>(null);
   const policyDetailsAnchorRef = useRef<HTMLButtonElement>(null);
 
-  // Soft parallax card behind the upload zone
-  const glassTiltX = useMotionValue(0);
-  const glassTiltY = useMotionValue(0);
-  const glassRotateX = useTransform(glassTiltY, [-0.5, 0.5], [10, -10]);
-  const glassRotateY = useTransform(glassTiltX, [-0.5, 0.5], [-10, 10]);
+  const profileLetter = getProfileLetter(userProfile.displayName);
 
-  const profileInitials = userProfile.displayName
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("")
-    .toUpperCase() || "?";
+  const persistUserMetadata = useCallback(
+    async (patch: Partial<UserProfileMetadata>) => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.user) return;
+        const prev = (session.user.user_metadata ?? {}) as UserProfileMetadata;
+        const { error } = await supabase.auth.updateUser({ data: { ...prev, ...patch } });
+        if (error) throw error;
+      } catch (e) {
+        console.error("Failed to save profile", e);
+        addToast("Could not save profile. Try again.", "error");
+      }
+    },
+    [addToast],
+  );
 
   const showResults = activeView === "result" && !!result;
   const showSkeleton = isUploading && !result;
+  const showLanding = !showResults && !showSkeleton;
+  const showWorkspaceSidebar = showSkeleton || showResults;
+  const { setSidebarContent } = useAnalyzeSidebarContent();
+
   const verdict = result?.policy_result.verdict ?? null;
 
   const docTypeLabel =
@@ -351,9 +452,253 @@ export default function Home() {
     secondaryVerdictSubtitle = "No critical policy violations detected";
   }
 
+  const landingSidebarNode = useMemo(
+    () => (
+      <div
+        className="flex h-full min-h-0 w-full flex-col px-4 pb-5 pt-4"
+        style={{ backgroundColor: COLORS.sidebarBg, color: COLORS.textPrimary }}
+      >
+        <header
+          className="shrink-0 border-b pb-4"
+          style={{ borderColor: COLORS.border }}
+        >
+          <div className="flex w-full items-center justify-start" role="img" aria-label="Echt">
+            <EchtWordmark className="block h-7 w-auto max-w-full text-neutral-800" />
+          </div>
+        </header>
+
+        <div className="mt-auto w-full pt-4">
+          <button
+            type="button"
+            onClick={() => setProfileOpen(true)}
+            className="flex w-full items-center gap-3 rounded-xl border bg-white px-4 py-3 text-left shadow-sm transition hover:bg-slate-50"
+            style={{ borderColor: COLORS.border }}
+          >
+            <Avatar size="lg">
+              <AvatarFallback className="bg-neutral-200 text-[15px] font-semibold text-neutral-700">
+                {profileLetter}
+              </AvatarFallback>
+              <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+            </Avatar>
+            <div className="min-w-0">
+              <div className="truncate text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>
+                {userProfile.displayName}
+              </div>
+              <div
+                className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wide"
+                style={{ color: COLORS.purple }}
+              >
+                PREMIUM PLAN
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    ),
+    [profileLetter, setProfileOpen, userProfile.displayName],
+  );
+
+  const workspaceSidebarNode = useMemo(
+    () => (
+      <div
+        className="flex h-full min-h-0 w-full flex-col border-r px-4 pb-5 pt-4"
+        style={{
+          backgroundColor: COLORS.sidebarBg,
+          borderColor: COLORS.border,
+          color: COLORS.textPrimary,
+        }}
+      >
+        {/* Logo (marketing wordmark) */}
+        <header className="mb-6 shrink-0 border-b pb-4" style={{ borderColor: COLORS.border }}>
+          <div className="flex w-full flex-col items-start gap-1">
+            <EchtWordmark className="block h-7 w-auto max-w-full text-neutral-800" />
+            <div
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: COLORS.textSecondary }}
+            >
+              Forensic review
+            </div>
+          </div>
+        </header>
+
+        {/* NEW ANALYSIS */}
+        <div className="mb-5">
+          <div
+            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: COLORS.textSecondary }}
+          >
+            New Analysis
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
+            className="hidden"
+            onChange={onFileInputChange}
+            disabled={isUploading}
+          />
+          <button
+            type="button"
+            onClick={handleResetScan}
+            disabled={isUploading}
+            className="inline-flex w-full items-center justify-center gap-1 rounded-lg border px-3 py-2 text-[12px] font-medium transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ borderColor: COLORS.border, color: COLORS.purple }}
+          >
+            <PlusSquare className="h-4 w-4 shrink-0" style={{ color: COLORS.purple }} />
+            Scan Another Document
+          </button>
+          {uploadError ? (
+            <p className="mt-1.5 text-[11px]" style={{ color: "#DC2626" }}>
+              {uploadError}
+            </p>
+          ) : null}
+        </div>
+
+        {/* MENU */}
+        <div className="mb-5">
+          <div
+            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: COLORS.textSecondary }}
+          >
+            Menu
+          </div>
+          <nav className="flex flex-col gap-0.5">
+            <a
+              href="#"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium"
+              style={{ backgroundColor: COLORS.purpleLight, color: COLORS.purple }}
+            >
+              <Search className="h-4 w-4" style={{ color: COLORS.purple }} />
+              Current Analysis
+            </a>
+          </nav>
+        </div>
+
+        {/* RECENT SCANS */}
+        <div className="mt-auto">
+          <div
+            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: COLORS.textSecondary }}
+          >
+            Recent Scans
+          </div>
+          {recentScans.length === 0 ? (
+            <p className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+              No scans yet. Your last 5 scans will appear here.
+            </p>
+          ) : (
+            <ul className="space-y-0.5">
+              {recentScans.map((scan) => {
+                const scanVerdict = (scan.verdict || "").toUpperCase();
+                const color =
+                  scanVerdict === "RED"
+                    ? "#EF4444"
+                    : scanVerdict === "GREEN"
+                      ? "#22C55E"
+                      : scanVerdict === "AMBER"
+                        ? "#F59E0B"
+                        : "#9CA3AF";
+                return (
+                  <li
+                    key={scan.id}
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors transition-shadow hover:bg-slate-50 hover:shadow-sm"
+                  >
+                    <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13px]" style={{ color: COLORS.textPrimary }}>
+                        {scan.filename}
+                      </div>
+                      <div className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+                        {formatTimeAgo(scan.created_at)}
+                      </div>
+                    </div>
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: color }}
+                      title={scanVerdict || "Unknown"}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* User profile (same card style as analyze landing sidebar) */}
+        <div className="mt-5 w-full shrink-0 border-t pt-4" style={{ borderColor: COLORS.border }}>
+          <button
+            type="button"
+            onClick={() => setProfileOpen(true)}
+            className="flex w-full items-center gap-3 rounded-xl border bg-white px-4 py-3 text-left shadow-sm transition hover:bg-slate-50"
+            style={{ borderColor: COLORS.border }}
+          >
+            <Avatar size="lg">
+              <AvatarFallback className="bg-neutral-200 text-[15px] font-semibold text-neutral-700">
+                {profileLetter}
+              </AvatarFallback>
+              <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+            </Avatar>
+            <div className="min-w-0">
+              <div className="truncate text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>
+                {userProfile.displayName}
+              </div>
+              <div
+                className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wide"
+                style={{ color: COLORS.purple }}
+              >
+                PREMIUM PLAN
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    ),
+    [
+      formatTimeAgo,
+      handleResetScan,
+      isUploading,
+      onFileInputChange,
+      profileLetter,
+      recentScans,
+      setProfileOpen,
+      uploadError,
+      userProfile.displayName,
+    ],
+  );
+
+  useLayoutEffect(() => {
+    if (showLanding) {
+      setSidebarContent(landingSidebarNode);
+    } else if (showWorkspaceSidebar) {
+      setSidebarContent(workspaceSidebarNode);
+    } else {
+      setSidebarContent(null);
+    }
+    return () => setSidebarContent(null);
+  }, [
+    landingSidebarNode,
+    setSidebarContent,
+    showLanding,
+    showWorkspaceSidebar,
+    workspaceSidebarNode,
+  ]);
+
+  if (!authReady) {
+    return (
+      <div
+        className="flex min-h-dvh min-h-0 flex-1 flex-col items-center justify-center font-sans"
+        style={{ backgroundColor: COLORS.pageBg, color: COLORS.textPrimary }}
+      >
+        <p className="text-sm" style={{ color: COLORS.textSecondary }}>
+          Loading…
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
-      className="flex min-h-screen font-sans"
+      className="flex min-h-0 flex-1 flex-col font-sans"
       style={{ backgroundColor: COLORS.pageBg, color: COLORS.textPrimary }}
     >
       {/* Toast notifications - top right */}
@@ -392,394 +737,180 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Left sidebar - fixed width ~25% */}
-      <aside
-        className="flex w-[280px] shrink-0 flex-col border-r p-5"
-        style={{ backgroundColor: COLORS.sidebarBg, borderColor: COLORS.border }}
-      >
-        {/* Logo */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2">
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
-              style={{ backgroundColor: COLORS.purple }}
-            >
-              <FileText className="h-5 w-5" strokeWidth={2} />
-            </div>
-            <div>
-              <div className="text-[15px] font-bold" style={{ color: COLORS.textPrimary }}>
-                Echt
-              </div>
-              <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: COLORS.textSecondary }}>
-                TENANT FRAUD OPS
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* DOCUMENT CLASS */}
-        <div className="mb-5">
-          <div
-            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: COLORS.textSecondary }}
-          >
-            Document Class
-          </div>
-          <select
-            value={docTypeKey}
-            onChange={(e) => setDocTypeKey(e.target.value as DocTypeKey)}
-            className="w-full cursor-pointer appearance-none rounded-md border bg-[#F1F3F5] py-2.5 pl-3 pr-8 text-[13px] outline-none focus:ring-1"
-            style={{
-              borderColor: COLORS.borderDark,
-              color: COLORS.textPrimary,
-            }}
-          >
-            {DOC_CLASS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* NEW ANALYSIS - dashed purple border, purple "or click to browse" */}
-        <div
-          className="mb-5 relative"
-          onMouseMove={(e) => {
-            const bounds = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-            const x = (e.clientX - bounds.left) / bounds.width - 0.5;
-            const y = (e.clientY - bounds.top) / bounds.height - 0.5;
-            glassTiltX.set(x);
-            glassTiltY.set(y);
-          }}
-          onMouseLeave={() => {
-            glassTiltX.set(0);
-            glassTiltY.set(0);
-          }}
-        >
-          {/* Subtle floating 3D glass card behind upload zone */}
-          <motion.div
-            style={{
-              rotateX: glassRotateX,
-              rotateY: glassRotateY,
-            }}
-            className="pointer-events-none absolute inset-0 -z-10"
-          >
-            <div
-              className="h-full w-full rounded-3xl bg-gradient-to-br from-white/40 via-purple-100/50 to-purple-300/30 shadow-xl"
-              style={{
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
-                border: "1px solid rgba(148, 163, 184, 0.35)",
-              }}
-            />
-          </motion.div>
-          <div
-            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: COLORS.textSecondary }}
-          >
-            New Analysis
-          </div>
-          <label
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed py-7 transition-colors transition-transform shadow-sm hover:shadow-md hover:-translate-y-[1px] ${
-              isUploading ? "pointer-events-none opacity-60" : ""
-            }`}
-            style={{
-              backgroundColor: "#F1F3F5",
-              borderColor: isDragging ? COLORS.purple : COLORS.purple,
-              opacity: isDragging ? 0.9 : 1,
-            }}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
-              className="hidden"
-              onChange={onFileInputChange}
-              disabled={isUploading}
-            />
-            <CloudUpload className="mb-2 h-9 w-9" style={{ color: COLORS.purple }} />
-            <span className="text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>
-              Drop PDF to Scan
-            </span>
-            <span className="mt-0.5 text-[11px]" style={{ color: COLORS.purple }}>
-              or click to browse
-            </span>
-          </label>
-          {uploadError && (
-            <p className="mt-1.5 text-[11px]" style={{ color: "#DC2626" }}>{uploadError}</p>
-          )}
-        </div>
-
-        {/* MENU - Current Analysis with light purple bg + purple text */}
-        <div className="mb-5">
-          <div
-            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: COLORS.textSecondary }}
-          >
-            Menu
-          </div>
-          <nav className="flex flex-col gap-0.5">
-            <a
-              href="#"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium"
-              style={{ backgroundColor: COLORS.purpleLight, color: COLORS.purple }}
-            >
-              <Search className="h-4 w-4" style={{ color: COLORS.purple }} />
-              Current Analysis
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium hover:bg-white/80"
-              style={{ color: COLORS.textPrimary }}
-            >
-              <FolderOpen className="h-4 w-4" style={{ color: COLORS.textSecondary }} />
-              Case History
-            </a>
-          </nav>
-        </div>
-
-        {/* RECENT SCANS */}
-        <div className="mt-auto">
-          <div
-            className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: COLORS.textSecondary }}
-          >
-            Recent Scans
-          </div>
-          {recentScans.length === 0 ? (
-            <p className="text-[11px]" style={{ color: COLORS.textSecondary }}>
-              No scans yet. Your last 5 scans will appear here.
-            </p>
-          ) : (
-            <ul className="space-y-0.5">
-              {recentScans.map((scan) => {
-                const verdict = (scan.verdict || "").toUpperCase();
-                const color =
-                  verdict === "RED"
-                    ? "#EF4444"
-                    : verdict === "GREEN"
-                      ? "#22C55E"
-                      : verdict === "AMBER"
-                        ? "#F59E0B"
-                        : "#9CA3AF"; // default gray
-                return (
-                  <li
-                    key={scan.id}
-                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors transition-shadow hover:bg-slate-50 hover:shadow-sm"
-                  >
-                    <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px]" style={{ color: COLORS.textPrimary }}>
-                        {scan.filename}
-                      </div>
-                      <div className="text-[11px]" style={{ color: COLORS.textSecondary }}>
-                        {formatTimeAgo(scan.created_at)}
-                      </div>
-                    </div>
-                    <span
-                      className="h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: color }}
-                      title={verdict || "Unknown"}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-
-        {/* User profile - clickable to open profile drawer */}
-        <div
-          className="mt-5 flex items-center gap-3 border-t pt-4"
-          style={{ borderColor: COLORS.border }}
-        >
-          <button
-            type="button"
-            onClick={() => setProfileOpen(true)}
-            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left transition-colors hover:bg-white/60"
-          >
-            <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold"
-              style={{ backgroundColor: COLORS.purpleLight, color: COLORS.purple }}
-            >
-              {profileInitials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-medium" style={{ color: COLORS.textPrimary }}>
-                {userProfile.displayName}
-              </div>
-              <div className="truncate text-[11px]" style={{ color: COLORS.textSecondary }}>
-                {userProfile.role}
-              </div>
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setProfileOpen(true)}
-            className="rounded border p-1 hover:opacity-80"
-            style={{ borderColor: COLORS.border, color: COLORS.textSecondary }}
-            title="Profile"
-          >
-            <PlusSquare className="h-4 w-4" />
-          </button>
-        </div>
-      </aside>
-
       {/* Main content - white background */}
-      <main className="flex flex-1 flex-col" style={{ backgroundColor: COLORS.mainBg }}>
-        {/* Header bar - Landing / Result on far right */}
-        <div
-          className="flex items-center justify-end gap-1 border-b px-6 py-2.5"
-          style={{ borderColor: COLORS.border }}
-        >
-          <button
-            type="button"
-            className="rounded-full px-4 py-1.5 text-[13px] font-medium transition"
-            style={
-              activeView === "landing"
-                ? { backgroundColor: COLORS.purple, color: "#FFFFFF" }
-                : { color: COLORS.textSecondary, backgroundColor: "transparent" }
-            }
-          >
-            Landing
-          </button>
-          <button
-            type="button"
-            className="rounded-full px-4 py-1.5 text-[13px] font-medium transition disabled:opacity-50"
-            style={
-              activeView === "result"
-                ? { backgroundColor: COLORS.purple, color: "#FFFFFF" }
-                : { color: COLORS.textSecondary, backgroundColor: "transparent" }
-            }
-          >
-            Result
-          </button>
-        </div>
+      <div className="flex min-h-0 flex-1 flex-col" style={{ backgroundColor: COLORS.mainBg }}>
+        {showResults && (
+          <>
+            {/* Header bar - wordmark + tagline + view pills */}
+            <div
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b px-4 py-3 sm:px-6"
+              style={{ borderColor: COLORS.border }}
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <span
+                  className="text-[11px] font-medium leading-snug tracking-wide sm:max-w-[min(100%,28rem)]"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  Document and media forensics. Structured checks you can use alongside your own review.
+                </span>
+              </div>
+              <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:gap-3">
+                <button
+                  type="button"
+                  className="rounded-full px-4 py-1.5 text-[13px] font-medium transition"
+                  style={{ color: COLORS.textSecondary, backgroundColor: "transparent" }}
+                >
+                  Landing
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full px-4 py-1.5 text-[13px] font-medium transition disabled:opacity-50"
+                  style={{ backgroundColor: COLORS.purple, color: "#FFFFFF" }}
+                >
+                  Result
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="flex-1 overflow-auto p-6">
-          {!showResults ? (
+          {showLanding ? (
             /* Landing: hero + feature cards */
             <>
-              {/* Hero - dark purple gradient, white text, white buttons with purple text */}
-              <div
-                className="mx-auto max-w-4xl rounded-2xl p-8 text-white"
-                style={{
-                  background: `linear-gradient(to bottom, ${COLORS.heroGradientFrom}, ${COLORS.heroGradientTo})`,
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-                }}
-              >
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: COLORS.greenDot, boxShadow: `0 0 0 3px ${COLORS.greenDot}40` }}
-                  />
-                  <span className="text-[12px] font-medium opacity-95">
-                    System Online v4.2.0 Active
-                  </span>
+              {/* Tagline only on landing main; wordmark lives in the left sidebar */}
+              <div className="mx-auto w-full max-w-6xl px-1">
+                <div className="border-b pb-4 pt-2 text-center sm:text-left">
+                  <p className="text-[11px] font-semibold leading-relaxed tracking-wide" style={{ color: COLORS.textPrimary }}>
+                    Document and media forensics
+                  </p>
+                  <p className="mx-auto mt-1.5 max-w-2xl text-[11px] font-medium leading-relaxed sm:mx-0" style={{ color: COLORS.textSecondary }}>
+                    Upload a file to inspect metadata, image integrity, and content signals. Outputs support review. They are not legal or compliance advice on their own.
+                  </p>
                 </div>
-                <motion.h1
-                  className="text-[28px] font-bold leading-tight tracking-tight"
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
+              </div>
+
+              {/* Center upload (matches screenshot) */}
+              <div className="mx-auto mt-14 flex w-full max-w-3xl flex-col items-center text-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif"
+                  className="hidden"
+                  onChange={onFileInputChange}
+                  disabled={isUploading}
+                />
+                <div
+                  className="w-full rounded-3xl border-2 border-dashed bg-white px-12 py-12 shadow-sm transition"
+                  style={{
+                    borderColor: isDragging ? COLORS.purple : COLORS.border,
+                    opacity: isUploading ? 0.6 : 1,
+                    pointerEvents: isUploading ? "none" : "auto",
+                  }}
+                  onDrop={onDrop}
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
                 >
-                  Forensic checks for tenant application documents
-                </motion.h1>
-                <motion.p
-                  className="mt-2 max-w-xl text-[14px] leading-relaxed opacity-95"
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                >
-                  Echt helps tenant referencing agencies and property managers spot forged payslips,
-                  fake IDs, and AI-written cover stories before you approve a tenancy.
-                </motion.p>
-                <div className="mt-6 flex flex-wrap gap-3">
+                  <div
+                    className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl"
+                    style={{ backgroundColor: "#F1F3F5", color: COLORS.purple }}
+                  >
+                    <CloudUpload className="h-7 w-7" />
+                  </div>
+                  <h2 className="mt-6 text-[20px] font-bold" style={{ color: COLORS.textPrimary }}>
+                    Initialize analysis
+                  </h2>
+                  <p className="mt-2 text-[13px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                    Drag and drop a file here, or use the button below. We accept common PDF and image formats and run a full pass: file metadata, visual signals, and text where available.
+                  </p>
+
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold shadow-md transition hover:opacity-95"
-                    style={{ color: COLORS.purple }}
+                    disabled={isUploading}
+                    className="mt-8 inline-flex items-center justify-center rounded-lg bg-[#4B5563] px-8 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:opacity-95 disabled:opacity-60"
                   >
-                    <CloudUpload className="h-4 w-4" />
-                    Start tenant document scan
+                    Select Files
                   </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-medium shadow-md transition hover:opacity-95"
-                    style={{ color: COLORS.purple }}
-                  >
-                    <Play className="h-4 w-4" style={{ color: COLORS.purple }} />
-                    Watch Echt in action
-                  </button>
-                </div>
-              </div>
 
-              {/* Feature cards - white, rounded, shadow, purple icons */}
-              <div className="mx-auto mt-6 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-3">
-                <div
-                  className="rounded-xl p-5"
-                  style={{ backgroundColor: COLORS.cardBg, boxShadow: COLORS.cardShadow }}
-                >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: COLORS.purpleLight }}
+                  {uploadError ? (
+                    <p className="mt-3 text-[12px] font-medium" style={{ color: "#DC2626" }}>
+                      {uploadError}
+                    </p>
+                  ) : null}
+
+                  <p
+                    className="mt-5 text-[10px] font-semibold uppercase tracking-wide"
+                    style={{ color: COLORS.textSecondary }}
                   >
-                    <FileText className="h-5 w-5" style={{ color: COLORS.purple }} />
-                  </div>
-                  <h3 className="text-[14px] font-bold" style={{ color: COLORS.textPrimary }}>
-                    File DNA for tenancy docs
-                  </h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
-                    Deep analysis of EXIF data, creation dates, and modification history on payslips,
-                    bank statements, and IDs to surface inconsistencies in file origin.
-                  </p>
-                </div>
-                <div
-                  className="rounded-xl p-5"
-                  style={{ backgroundColor: COLORS.cardBg, boxShadow: COLORS.cardShadow }}
-                >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: COLORS.purpleLight }}
-                  >
-                    <FileStack className="h-5 w-5" style={{ color: COLORS.purple }} />
-                  </div>
-                  <h3 className="text-[14px] font-bold" style={{ color: COLORS.textPrimary }}>
-                    Pixel & layout fraud checks
-                  </h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
-                    Error Level Analysis (ELA) to spot digital tampering, copy-paste artifacts, and
-                    font inconsistencies in submitted documents that are invisible to the naked eye.
-                  </p>
-                </div>
-                <div
-                  className="rounded-xl p-5"
-                  style={{ backgroundColor: COLORS.cardBg, boxShadow: COLORS.cardShadow }}
-                >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: COLORS.purpleLight }}
-                  >
-                    <span className="text-[18px] font-bold" style={{ color: COLORS.purple }}>%</span>
-                  </div>
-                  <h3 className="text-[14px] font-bold" style={{ color: COLORS.textPrimary }}>
-                    AI narrative detection
-                  </h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
-                    Advanced NLP models trained to distinguish between genuine tenant explanations
-                    and LLM-generated stories used to bypass your referencing rules.
+                    Max upload size: 50 MB per file
                   </p>
                 </div>
               </div>
 
-              <p className="mt-8 text-center text-[11px]" style={{ color: COLORS.textSecondary }}>
-                © {new Date().getFullYear()} Echt. Built for tenant referencing agencies and property managers.
-              </p>
+              {/* Feature cards (matches screenshot) */}
+              <div className="mx-auto mt-14 w-full max-w-6xl">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                  <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "#F1F3F5" }}
+                    >
+                      <Dna className="h-6 w-6" style={{ color: COLORS.purple }} />
+                    </div>
+                    <h3 className="mt-4 text-[13px] font-bold" style={{ color: COLORS.textPrimary }}>
+                      File DNA analysis
+                    </h3>
+                    <p className="mt-1 text-[12px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                      Reads embedded metadata, timestamps, and format headers to see whether the file’s story matches its technical footprint.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "#F1F3F5" }}
+                    >
+                      <FileStack className="h-6 w-6" style={{ color: COLORS.purple }} />
+                    </div>
+                    <h3 className="mt-4 text-[13px] font-bold" style={{ color: COLORS.textPrimary }}>
+                      Pixel heuristics
+                    </h3>
+                    <p className="mt-1 text-[12px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                      Surfaces compression, noise, and frequency domain cues that often appear when an image is edited, stitched, or generated.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "#F1F3F5" }}
+                    >
+                      <Info className="h-6 w-6" style={{ color: COLORS.purple }} />
+                    </div>
+                    <h3 className="mt-4 text-[13px] font-bold" style={{ color: COLORS.textPrimary }}>
+                      Risk scoring
+                    </h3>
+                    <p className="mt-1 text-[12px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                      Combines model-assisted signals with policy checks to summarize confidence and risk in one view you can audit.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Landing footer */}
+              <div className="mx-auto mt-12 flex w-full max-w-6xl items-center justify-between">
+                <div />
+                <div className="text-center text-[10px] font-medium uppercase tracking-[0.2em]" style={{ color: COLORS.textSecondary }}>
+                  © {new Date().getFullYear()} ECHT AI. ALL RIGHTS RESERVED.
+                </div>
+                <div className="flex items-center gap-6 text-[11px] font-semibold uppercase tracking-wide" style={{ color: COLORS.textSecondary }}>
+                  <a href="/privacy" className="hover:opacity-80">
+                    Privacy
+                  </a>
+                  <a href="/terms" className="hover:opacity-80">
+                    Terms
+                  </a>
+                </div>
+              </div>
             </>
           ) : showSkeleton ? (
             /* Skeleton: gray pulsing replica of result layout */
@@ -865,7 +996,8 @@ export default function Home() {
               </aside>
             </div>
           ) : (
-            /* Results view – two-column layout matching case analysis UI */
+            <>
+            {/* Results view: two-column layout matching case analysis UI */}
             <div className="mx-auto flex max-w-6xl items-start gap-6">
               {/* Left column: case header + document evidence card */}
               <section className="flex-1 space-y-4">
@@ -892,6 +1024,17 @@ export default function Home() {
                         {docTypeLabel}
                       </span>
                     </div>
+                    {result!.doc_type_inference ? (
+                      <p className="mt-2 max-w-2xl text-[11px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                        <span className="font-medium" style={{ color: COLORS.textPrimary }}>
+                          Detected class:
+                        </span>{" "}
+                        {docTypeLabel}
+                        {" · "}
+                        <span className="capitalize">{result!.doc_type_inference.confidence}</span> confidence.{" "}
+                        {result!.doc_type_inference.reason}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex flex-col items-end gap-2 text-right">
                     <div className="text-[11px]" style={{ color: COLORS.textSecondary }}>
@@ -1041,7 +1184,7 @@ export default function Home() {
                               className="flex h-64 w-full items-center justify-center rounded-xl border bg-gradient-to-br from-slate-900 via-rose-500 to-amber-400 text-[12px] font-medium text-white"
                               style={{ borderColor: COLORS.border }}
                             >
-                              ELA heatmap – bright regions may indicate digital manipulation.
+                              ELA heatmap. Bright regions may indicate digital manipulation.
                             </div>
                           )}
                         </div>
@@ -1056,7 +1199,7 @@ export default function Home() {
 
               {/* Right column: verdict and red flags */} 
               <aside className="w-[400px] space-y-4">
-                {/* Forensic verdict card – matches FORENSIC VERDICT design */}
+                {/* Forensic verdict card (matches FORENSIC VERDICT design) */}
                 <div
                   className="rounded-2xl border bg-white p-6"
                   style={{ borderColor: COLORS.border, boxShadow: COLORS.cardShadow }}
@@ -1129,7 +1272,7 @@ export default function Home() {
                                 Recommended action
                               </h4>
                               <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: COLORS.textPrimary }}>
-                                {result?.policy_result?.action ?? "—"}
+                                {result?.policy_result?.action ?? "Not specified"}
                               </p>
                             </section>
                             {(result?.policy_result?.critical_flags_hit?.length ?? 0) > 0 && (
@@ -1235,7 +1378,7 @@ export default function Home() {
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-[12px] leading-snug" style={{ color: COLORS.textPrimary }}>
                           {scoreInfoPopover === "forgery" ? (
-                            <>Forgery probability means the likelihood that the document has been digitally altered or fabricated—through metadata changes, pixel manipulation, or content edits. Higher score = more signs of forgery.</>
+                            <>Forgery probability means the likelihood that the document has been digitally altered or fabricated through metadata changes, pixel manipulation, or content edits. Higher score = more signs of forgery.</>
                           ) : (
                             <>Trust score means how reliable the document appears based on consistency of metadata, file structure, and forensic analysis. Higher score = more trustworthy.</>
                           )}
@@ -1304,8 +1447,8 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Toggle for forensic report drawer + reset button */}
-                <div className="mt-1 flex justify-end gap-2">
+                {/* Forensic report drawer */}
+                <div className="mt-1 flex justify-end">
                   <button
                     type="button"
                     onClick={() => setForensicDrawerOpen(true)}
@@ -1315,15 +1458,6 @@ export default function Home() {
                     <FileStack className="h-4 w-4" />
                     Forensic Report
                     <ChevronRight className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleResetScan}
-                    className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-[12px] font-medium transition hover:bg-slate-50"
-                    style={{ borderColor: COLORS.border, color: COLORS.purple }}
-                  >
-                    <PlusSquare className="h-4 w-4" style={{ color: COLORS.purple }} />
-                    Scan Another Document
                   </button>
                 </div>
               </aside>
@@ -1541,6 +1675,58 @@ export default function Home() {
                 </>
               )}
             </div>
+
+            {/* Responsible use & compliance (results only): limits liability and sets expectations */}
+            <div
+              className="mx-auto mt-10 max-w-6xl rounded-xl border px-4 py-4 sm:px-5"
+              style={{ borderColor: COLORS.border, backgroundColor: "#FAFBFC" }}
+              role="region"
+              aria-label="Responsible use and compliance"
+            >
+              <div className="flex gap-3">
+                <div className="shrink-0 pt-0.5" style={{ color: COLORS.purple }}>
+                  <Shield className="h-5 w-5" aria-hidden />
+                </div>
+                <div className="min-w-0 space-y-2">
+                  <p className="text-[12px] font-semibold" style={{ color: COLORS.textPrimary }}>
+                    Responsible use
+                  </p>
+                  <ul className="list-inside list-disc space-y-1.5 text-[11px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                    <li>
+                      Outputs are <strong className="font-medium text-slate-700">decision support only</strong>. Use trained human review
+                      before tenancy, employment, or legal decisions.
+                    </li>
+                    <li>
+                      This tool does <strong className="font-medium text-slate-700">not</strong> provide legal, regulatory, or compliance
+                      advice. Your organisation remains responsible for its processes and record keeping.
+                    </li>
+                    <li>
+                      Handle documents under your data protection and retention policies. Do not upload unlawful or unnecessary personal
+                      data.
+                    </li>
+                    <li>
+                      Automated checks can be wrong. Treat scores and flags as signals to investigate, not proof on their own.
+                    </li>
+                  </ul>
+                  <p className="pt-1 text-[10px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                    Questions about data or your agreement?{" "}
+                    <Link href="/contact" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
+                      Contact us
+                    </Link>
+                    . Legal terms:{" "}
+                    <Link href="/terms" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
+                      Terms
+                    </Link>
+                    ,{" "}
+                    <Link href="/privacy" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
+                      Privacy
+                    </Link>
+                    .
+                  </p>
+                </div>
+              </div>
+            </div>
+            </>
           )}
         </div>
 
@@ -1568,16 +1754,17 @@ export default function Home() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
+              <div className="flex min-h-0 flex-1 flex-col">
               <div className="flex-1 overflow-y-auto p-4 space-y-5">
                 <section className="flex flex-col items-center pt-2">
                   <div
-                    className="flex h-16 w-16 items-center justify-center rounded-full text-[20px] font-semibold"
+                    className="flex h-16 w-16 items-center justify-center rounded-full text-[22px] font-semibold"
                     style={{ backgroundColor: COLORS.purpleLight, color: COLORS.purple }}
                   >
-                    {profileInitials}
+                    {profileLetter}
                   </div>
                   <p className="mt-2 text-[11px]" style={{ color: COLORS.textSecondary }}>
-                    Initials from your display name
+                    First letter of your first name
                   </p>
                 </section>
                 <section>
@@ -1588,7 +1775,52 @@ export default function Home() {
                     type="text"
                     value={userProfile.displayName}
                     onChange={(e) => setUserProfile((p) => ({ ...p, displayName: e.target.value }))}
+                    onBlur={(e) =>
+                      void persistUserMetadata({ full_name: e.currentTarget.value.trim() })
+                    }
                     placeholder="Your name"
+                    className="w-full rounded-md border bg-[#F1F3F5] px-3 py-2 text-[13px] outline-none focus:ring-1"
+                    style={{ borderColor: COLORS.borderDark, color: COLORS.textPrimary }}
+                  />
+                </section>
+                <section>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                    Email
+                  </h4>
+                  <input
+                    type="email"
+                    readOnly
+                    value={userProfile.email}
+                    className="w-full cursor-not-allowed rounded-md border bg-neutral-100 px-3 py-2 text-[13px] outline-none"
+                    style={{ borderColor: COLORS.borderDark, color: COLORS.textSecondary }}
+                  />
+                </section>
+                <section>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                    Phone
+                  </h4>
+                  <input
+                    type="tel"
+                    value={userProfile.phone}
+                    onChange={(e) => setUserProfile((p) => ({ ...p, phone: e.target.value }))}
+                    onBlur={(e) => void persistUserMetadata({ phone: e.currentTarget.value.trim() })}
+                    placeholder="Phone number"
+                    className="w-full rounded-md border bg-[#F1F3F5] px-3 py-2 text-[13px] outline-none focus:ring-1"
+                    style={{ borderColor: COLORS.borderDark, color: COLORS.textPrimary }}
+                  />
+                </section>
+                <section>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                    Company
+                  </h4>
+                  <input
+                    type="text"
+                    value={userProfile.companyName}
+                    onChange={(e) => setUserProfile((p) => ({ ...p, companyName: e.target.value }))}
+                    onBlur={(e) =>
+                      void persistUserMetadata({ company_name: e.currentTarget.value.trim() })
+                    }
+                    placeholder="Company name"
                     className="w-full rounded-md border bg-[#F1F3F5] px-3 py-2 text-[13px] outline-none focus:ring-1"
                     style={{ borderColor: COLORS.borderDark, color: COLORS.textPrimary }}
                   />
@@ -1601,21 +1833,83 @@ export default function Home() {
                     type="text"
                     value={userProfile.role}
                     onChange={(e) => setUserProfile((p) => ({ ...p, role: e.target.value }))}
+                    onBlur={(e) =>
+                      void persistUserMetadata({ role_in_company: e.currentTarget.value.trim() })
+                    }
                     placeholder="e.g. Senior Ops Analyst"
                     className="w-full rounded-md border bg-[#F1F3F5] px-3 py-2 text-[13px] outline-none focus:ring-1"
                     style={{ borderColor: COLORS.borderDark, color: COLORS.textPrimary }}
                   />
                 </section>
                 <section>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                    References per month
+                  </h4>
+                  <input
+                    type="text"
+                    value={userProfile.monthlyReferences}
+                    onChange={(e) => setUserProfile((p) => ({ ...p, monthlyReferences: e.target.value }))}
+                    onBlur={(e) =>
+                      void persistUserMetadata({
+                        monthly_references: e.currentTarget.value.trim(),
+                      })
+                    }
+                    placeholder="e.g. 51 to 200"
+                    className="w-full rounded-md border bg-[#F1F3F5] px-3 py-2 text-[13px] outline-none focus:ring-1"
+                    style={{ borderColor: COLORS.borderDark, color: COLORS.textPrimary }}
+                  />
+                </section>
+                <section>
                   <p className="text-[11px]" style={{ color: COLORS.textSecondary }}>
-                    Changes are saved automatically and reflected in the sidebar.
+                    Changes save when you leave each field. Profile updates are stored on your account.
                   </p>
                 </section>
+
+                <section>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                    Help &amp; account
+                  </h4>
+                  <nav className="flex flex-col gap-1" aria-label="Help and account links">
+                    <Link
+                      href="/faq"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
+                      style={{ color: COLORS.textPrimary }}
+                    >
+                      <HelpCircle className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
+                      Help &amp; FAQ
+                    </Link>
+                    <Link
+                      href="/contact"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
+                      style={{ color: COLORS.textPrimary }}
+                    >
+                      <Mail className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
+                      Contact support
+                    </Link>
+                  </nav>
+                </section>
+              </div>
+              <div className="border-t p-4" style={{ borderColor: COLORS.border }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    void handleSignOut();
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-50"
+                  style={{ borderColor: COLORS.border, color: COLORS.textPrimary }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </div>
               </div>
             </div>
           </>
         )}
-      </main>
+      </div>
       {isLoading && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-300">
           <div className="loadingspinner mb-8">

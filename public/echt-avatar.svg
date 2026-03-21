@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Echt">
+  <defs>
+    <linearGradient id="echt-avatar-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#echt-avatar-bg)" />
+  <circle cx="50" cy="50" r="49" fill="none" stroke="#CBD5E1" stroke-width="1" opacity="0.9" />
+  <!-- Echt mark (matches EchtLogo icon strokes) -->
+  <g fill="none" stroke="#0F172A" stroke-width="7" stroke-linecap="round">
+    <path d="M 28 32 L 62 32" />
+    <path d="M 28 50 L 50 50" />
+    <path d="M 28 68 L 62 68" />
+    <path d="M 32 32 L 32 68" />
+  </g>
+  <circle cx="72" cy="50" r="5" fill="#10B981" />
+</svg>

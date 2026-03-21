@@ -2,8 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-/** Where users land after a successful magic-link / OAuth exchange. */
-const POST_LOGIN_PATH = "/analyze";
+const ANALYZE_PATH = "/analyze";
+const ONBOARDING_PATH = "/onboarding";
 const LOGIN_ERROR_PATH = "/login?error=true";
 
 /**
@@ -33,8 +33,8 @@ export async function GET(request: Request) {
 
   try {
     const cookieStore = await cookies();
-    // Build redirect first; Supabase will attach Set-Cookie to this response in setAll.
-    const redirectResponse = NextResponse.redirect(new URL(POST_LOGIN_PATH, origin));
+    // Placeholder redirect; Supabase attaches Set-Cookie via setAll. Path updated after session exists.
+    const redirectResponse = NextResponse.redirect(new URL(ANALYZE_PATH, origin));
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
@@ -60,7 +60,22 @@ export async function GET(request: Request) {
       return redirectWithError();
     }
 
-    return redirectResponse;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const onboardingDone = Boolean(user?.user_metadata?.onboarding_complete);
+    const nextPath = onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH;
+
+    if (nextPath === ANALYZE_PATH) {
+      return redirectResponse;
+    }
+
+    const finalResponse = NextResponse.redirect(new URL(nextPath, origin));
+    redirectResponse.cookies.getAll().forEach((cookie) => {
+      finalResponse.cookies.set(cookie.name, cookie.value);
+    });
+    return finalResponse;
   } catch {
     return redirectWithError();
   }

@@ -80,7 +80,7 @@ function ProtectPortfolioEncryptButton() {
   );
 }
 
-/** No opacity in variants — fading the whole card made it vanish on white / with scroll-in. */
+/** No opacity in variants; fading the whole card made it vanish on white / with scroll-in. */
 const cardVariants: Variants = {
   offscreen: {
     y: 48,
@@ -141,7 +141,7 @@ export function RoiCalculator() {
           viewport={{ once: true, amount: 0.2, margin: "0px 0px -10% 0px" }}
         >
           <div className="grid gap-10 md:grid-cols-2 md:gap-12">
-            {/* Left column – input */}
+            {/* Left column: input */}
             <div className="space-y-6">
               <h2 className="font-sans text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 Calculate your annual exposure.
@@ -163,7 +163,7 @@ export function RoiCalculator() {
                     applications
                   </span>
                   <span className="text-xs text-slate-500">
-                    {SLIDER_MIN.toLocaleString("en-GB")}–{SLIDER_MAX.toLocaleString("en-GB")} / month
+                    {SLIDER_MIN.toLocaleString("en-GB")} to {SLIDER_MAX.toLocaleString("en-GB")} / month
                   </span>
                 </div>
 
@@ -180,7 +180,7 @@ export function RoiCalculator() {
               </div>
             </div>
 
-            {/* Right column – output */}
+            {/* Right column: output */}
             <div className="flex flex-col md:items-end">
               <div className="flex w-full flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-8">
                 <div className="w-full min-w-0">

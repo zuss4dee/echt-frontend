@@ -25,7 +25,7 @@ export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginForm
     setError(null);
     const trimmed = email.trim();
     if (!trimmed) {
-      setError("Enter your work email.");
+      setError("Enter your email.");
       return;
     }
 
@@ -58,29 +58,33 @@ export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginForm
   }
 
   return (
-    <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-8 shadow-2xl shadow-black/50">
-      <div className="flex flex-col items-center text-center">
-        <EchtWordmark className="h-8 w-auto text-white" aria-label="Echt" />
-        <h1 className="mt-6 text-2xl font-bold text-white">
-          Sign in to your dashboard
+    <div className="w-full max-w-[400px]">
+      <div className="text-center">
+        <div className="mb-8 flex justify-center">
+          <Link href="/" className="inline-block rounded-md outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-neutral-900/20" aria-label="Echt home">
+            <EchtWordmark className="block h-9 w-auto text-neutral-900 sm:h-10" />
+          </Link>
+        </div>
+        <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-[2rem] sm:leading-tight">
+          Create an account
         </h1>
-        <p className="mt-2 mb-8 text-sm text-zinc-400">
-          Enter your work email to receive a secure login link.
+        <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
+          Enter your email below to create your account
         </p>
       </div>
 
       {success ? (
         <div
-          className="flex flex-col items-center gap-4 rounded-lg border border-white/10 bg-zinc-950/50 px-4 py-8 text-center"
+          className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-10 text-center"
           role="status"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/15 text-purple-300">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-700">
             <Mail className="h-6 w-6" aria-hidden />
           </div>
-          <p className="text-sm leading-relaxed text-zinc-300">
-            <span className="font-medium text-white">Check your email.</span>{" "}
+          <p className="text-sm leading-relaxed text-neutral-600">
+            <span className="font-medium text-neutral-900">Check your email.</span>{" "}
             We sent a secure link to{" "}
-            <span className="font-medium text-white">{sentTo}</span>.
+            <span className="font-medium text-neutral-900">{sentTo}</span>.
           </p>
           <button
             type="button"
@@ -89,46 +93,66 @@ export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginForm
               setSentTo(null);
               setEmail("");
             }}
-            className="text-sm font-medium text-purple-400 underline-offset-4 hover:text-purple-300 hover:underline"
+            className="text-sm font-medium text-neutral-900 underline underline-offset-4 hover:text-neutral-700"
           >
             Use a different email
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-1" noValidate>
-          <label htmlFor="email" className="sr-only">
-            Work email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder="you@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-500 transition-all focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-60"
-          />
-          {error ? (
-            <p className="pt-2 text-sm text-red-400" role="alert">
-              {error}
-            </p>
-          ) : null}
+        <form onSubmit={handleSubmit} className="mt-10 space-y-4" noValidate>
+          <div>
+            <label htmlFor="email" className="sr-only">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3.5 text-[15px] text-neutral-900 shadow-sm placeholder:text-neutral-400 transition-colors focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-60"
+            />
+            {error ? (
+              <p className="mt-2 text-sm text-red-600" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="mt-4 w-full rounded-lg bg-white py-3 font-semibold text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-70"
+            className="h-11 w-full rounded-lg bg-neutral-900 py-2.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Sending…" : "Send Magic Link"}
+            {loading ? "Sending…" : "Sign In with Email"}
           </button>
         </form>
       )}
 
-      <p className="mt-8 text-center text-xs text-zinc-500">
-        <Link href="/" className="underline-offset-4 hover:text-zinc-400 hover:underline">
-          ← Back to marketing site
+      <p className="mt-8 text-center text-[13px] leading-relaxed text-neutral-500">
+        By clicking continue, you agree to our{" "}
+        <Link
+          href="/terms"
+          className="font-medium text-neutral-900 underline underline-offset-2 hover:text-neutral-700"
+        >
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link
+          href="/privacy"
+          className="font-medium text-neutral-900 underline underline-offset-2 hover:text-neutral-700"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
+
+      <p className="mt-6 text-center text-sm text-neutral-400">
+        <Link href="/" className="underline-offset-4 hover:text-neutral-600 hover:underline">
+          ← Back to home
         </Link>
       </p>
     </div>

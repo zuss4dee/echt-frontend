@@ -22,7 +22,7 @@ export function EchtLogo({ className = "w-8 h-8" }: { className?: string }) {
   );
 }
 
-/** Wordmark: "ECHT" — set `className` with e.g. `text-slate-900` (light bg) or `text-white` (dark). */
+/** Wordmark: "ECHT". Set `className` with e.g. `text-slate-900` (light bg) or `text-white` (dark). */
 export function EchtWordmark({ className = "h-8" }: { className?: string }) {
   return (
     <svg

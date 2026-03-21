@@ -40,7 +40,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // Do not add logic between createServerClient and getUser() — avoids flaky sessions.
+  // Do not add logic between createServerClient and getUser(); avoids flaky sessions.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -50,7 +50,27 @@ export async function proxy(request: NextRequest) {
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
     pathname === "/analyze" ||
-    pathname.startsWith("/analyze/");
+    pathname.startsWith("/analyze/") ||
+    pathname === "/onboarding" ||
+    pathname.startsWith("/onboarding/");
+
+  // Signed-in users should not stay on the login page.
+  if (pathname === "/login" && user) {
+    const onboardingDone = Boolean(user.user_metadata?.onboarding_complete);
+    const dest = onboardingDone ? "/analyze" : "/onboarding";
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = dest;
+    redirectUrl.searchParams.delete("error");
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(
+        cookie.name,
+        cookie.value,
+        cookie as CookieOptions,
+      );
+    });
+    return redirectResponse;
+  }
 
   // Only gate on missing user; avoids redirect loops if a non-fatal getUser edge-case sets `error` without invalidating the session.
   if (isProtectedApp && !user) {

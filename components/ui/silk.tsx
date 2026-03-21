@@ -149,7 +149,7 @@ function SilkPlane({
 }: SilkPlaneProps) {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<ShaderMaterial>(null);
-  /** Own timeline — avoids freezes if the r3f / THREE clock stops advancing. */
+  /** Own timeline; avoids freezes if the r3f / THREE clock stops advancing. */
   const timeRef = useRef(0);
 
   const uniforms = useMemo(

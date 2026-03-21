@@ -28,7 +28,7 @@ export function BouncyCardsFeatures() {
             <CardTitle>File DNA &amp; metadata</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-violet-500 to-indigo-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-indigo-50">
-                EXIF, creation history, and structure signals—before an analyst opens the PDF.
+                EXIF, creation history, and structure signals before an analyst opens the PDF.
               </span>
             </div>
           </BounceCard>
@@ -36,7 +36,7 @@ export function BouncyCardsFeatures() {
             <CardTitle>Pixel-level forgery detection</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-orange-50">
-                ELA-style heatmaps and tamper regions with coordinates—built for referencing ops, not
+                ELA-style heatmaps and tamper regions with coordinates, built for referencing ops, not
                 generic “AI scores”.
               </span>
             </div>
@@ -48,7 +48,7 @@ export function BouncyCardsFeatures() {
             <CardTitle>Verdicts teams can defend</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-emerald-50">
-                RED / AMBER / GREEN policy output with reasons and audit trail—so approvals hold up
+                RED / AMBER / GREEN policy output with reasons and audit trail, so approvals hold up
                 under scrutiny.
               </span>
             </div>

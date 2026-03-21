@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Echt – Tenant Referencing Fraud Forensics",
+  title: "Echt | Tenant Referencing Fraud Forensics",
   description:
     "Echt helps tenant referencing agencies and property managers run forensic checks on income and ID documents to catch fraud before move-in.",
 };

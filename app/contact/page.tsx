@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Contact — Echt",
+  title: "Contact | Echt",
   description: "Get in touch with Echt.",
 };
 
