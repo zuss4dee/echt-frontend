@@ -96,11 +96,13 @@ async function handleMembershipEvent(
 /**
  * Whop sends signed webhooks here. Register in Whop dashboard:
  * `https://<your-domain>/api/webhooks/whop`
- * Use the **webhook signing secret** from Whop as `WHOP_WEBHOOK_SECRET`.
+ *
+ * Set `WHOP_WEBHOOK_SECRET` to the **raw** secret from Whop (`ws_...`).
+ * Encoding for `unwrap()` is applied in `getWhopClient()` — do not pass a
+ * second `key` here or verification will fail.
  */
 export async function POST(request: Request) {
-  const secret = process.env.WHOP_WEBHOOK_SECRET;
-  if (!secret) {
+  if (!process.env.WHOP_WEBHOOK_SECRET?.trim()) {
     console.error("[whop webhook] WHOP_WEBHOOK_SECRET is not set");
     return NextResponse.json(
       { error: "Server misconfigured" },
@@ -114,7 +116,6 @@ export async function POST(request: Request) {
     const whop = getWhopClient();
     const event = whop.webhooks.unwrap(rawBody, {
       headers: headersToRecord(request),
-      key: secret,
     }) as { type: string; data: MembershipPayload };
 
     switch (event.type) {
