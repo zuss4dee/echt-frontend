@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Instagram, Linkedin, X } from "lucide-react";
 import { EchtWordmark } from "@/components/EchtLogo";
@@ -9,6 +10,7 @@ import { InteractiveHoverButton } from "@/registry/magicui/interactive-hover-but
 import { BouncyCardsFeatures } from "@/components/marketing/BouncyCardsFeatures";
 import { PricingSection } from "@/components/marketing/PricingSection";
 import { RoiCalculator } from "@/components/marketing/RoiCalculator";
+import { ContactUsModal } from "@/components/marketing/ContactUsModal";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -16,6 +18,8 @@ function scrollToId(id: string) {
 }
 
 export default function LandingPage() {
+  const [contactOpen, setContactOpen] = useState(false);
+
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
       {/* Content */}
@@ -56,16 +60,16 @@ export default function LandingPage() {
                   <button
                     type="button"
                     className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
-                    onClick={() => scrollToId("pricing")}
+                    onClick={() => scrollToId("security")}
                   >
-                    Pricing
+                    Security
                   </button>
                   <button
                     type="button"
                     className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
-                    onClick={() => scrollToId("security")}
+                    onClick={() => setContactOpen(true)}
                   >
-                    Security
+                    Contact us
                   </button>
                   <div className="hidden h-4 w-px shrink-0 bg-white/25 md:block" aria-hidden />
                   <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
@@ -124,7 +128,8 @@ export default function LandingPage() {
               <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center sm:gap-4">
                 {/* `!` beats hero ancestor `text-white`. Do not use CSS vars that force white foreground here. */}
                 <InteractiveHoverButton
-                  href="/login"
+                  type="button"
+                  onClick={() => scrollToId("pricing")}
                   className="w-full justify-center rounded-full border-0 !bg-white px-6 py-3 !text-slate-900 shadow-lg transition-colors hover:!bg-black hover:!text-white group-hover:!text-white hover:shadow-md sm:w-auto sm:min-w-[180px] sm:px-8"
                 >
                   Run a Free Scan
@@ -167,7 +172,7 @@ export default function LandingPage() {
         {/* Cost of Fraud ROI section */}
         <RoiCalculator />
 
-        <BouncyCardsFeatures />
+        <BouncyCardsFeatures onRunFreeScan={() => scrollToId("pricing")} />
 
         <PricingSection />
 
@@ -214,17 +219,19 @@ export default function LandingPage() {
 
                   <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mx-auto sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center">
                     <InteractiveHoverButton
-                      href="/login"
+                      type="button"
+                      onClick={() => scrollToId("pricing")}
                       className="w-full justify-center border-white/10 !bg-white !text-zinc-900 transition-colors hover:!bg-slate-900 hover:!text-white group-hover:!text-white sm:w-auto"
                     >
                       Run a Free Scan
                     </InteractiveHoverButton>
-                    <InteractiveHoverButton
-                      href="/contact"
-                      className="w-full justify-center border-white/20 bg-white/10 !text-white transition-colors hover:bg-white/20 hover:!text-white sm:w-auto"
+                    <button
+                      type="button"
+                      onClick={() => setContactOpen(true)}
+                      className="group relative inline-flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 p-2 px-6 py-3 text-center text-[14px] font-semibold text-white no-underline shadow-sm backdrop-blur-sm transition-colors duration-300 hover:bg-white/20 sm:w-auto"
                     >
-                      Contact Sales
-                    </InteractiveHoverButton>
+                      Contact us
+                    </button>
                   </div>
                 </div>
               </div>
@@ -325,34 +332,25 @@ export default function LandingPage() {
               </div>
             </div>
             <nav className="flex flex-col gap-3 sm:flex-row sm:gap-8" aria-label="Footer">
-              <Link
-                href="/pricing"
-                className="font-medium text-zinc-400 transition-colors hover:text-white"
+              <button
+                type="button"
+                onClick={() => setContactOpen(true)}
+                className="text-left font-medium text-zinc-400 transition-colors hover:text-white sm:text-center"
               >
-                Pricing
-              </Link>
-              <Link
-                href="/contact"
-                className="font-medium text-zinc-400 transition-colors hover:text-white"
-              >
-                Contact
-              </Link>
+                Contact us
+              </button>
               <Link
                 href="/faq"
                 className="font-medium text-zinc-400 transition-colors hover:text-white"
               >
                 FAQ
               </Link>
-              <Link
-                href="/login"
-                className="font-medium text-zinc-400 transition-colors hover:text-white"
-              >
-                Sign in
-              </Link>
             </nav>
           </div>
         </footer>
       </div>
+
+      <ContactUsModal open={contactOpen} onOpenChange={setContactOpen} />
 
       {/* Local animation keyframes */}
       <style jsx>{`

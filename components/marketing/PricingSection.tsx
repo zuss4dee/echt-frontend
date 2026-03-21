@@ -13,6 +13,7 @@ import {
   type PricingCardConfig,
 } from "@/lib/pricing-plans";
 import { cn } from "@/lib/utils";
+import { getWhopSupportChatUrl } from "@/lib/whop-experience-urls";
 
 const accent = {
   text: "text-red-600",
@@ -180,6 +181,8 @@ type PricingSectionProps = {
 
 export function PricingSection({ className }: PricingSectionProps) {
   const [annual, setAnnual] = useState(false);
+  const supportContactHref = getWhopSupportChatUrl() || "/contact";
+  const supportContactExternal = supportContactHref.startsWith("http");
 
   const trial = getTrialCard();
   const quarterly = getQuarterlyCard();
@@ -283,9 +286,20 @@ export function PricingSection({ className }: PricingSectionProps) {
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-zinc-500">
           Prices exclude VAT where applicable.{" "}
-          <Link href="/contact" className="font-medium text-zinc-700 underline underline-offset-2">
-            Contact us
-          </Link>{" "}
+          {supportContactExternal ? (
+            <a
+              href={supportContactHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-zinc-700 underline underline-offset-2"
+            >
+              Contact us
+            </a>
+          ) : (
+            <Link href={supportContactHref} className="font-medium text-zinc-700 underline underline-offset-2">
+              Contact us
+            </Link>
+          )}{" "}
           for procurement or pilots.
         </p>
       </div>

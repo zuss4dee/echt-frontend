@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { EchtWordmark } from "@/components/EchtLogo";
+import { PricingCheckoutBanner } from "@/components/marketing/PricingCheckoutBanner";
 import { PricingSection } from "@/components/marketing/PricingSection";
 
 export const metadata = {
@@ -11,6 +13,9 @@ export const metadata = {
 export default function PricingPage() {
   return (
     <div className="min-h-dvh bg-zinc-50">
+      <Suspense fallback={null}>
+        <PricingCheckoutBanner />
+      </Suspense>
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link

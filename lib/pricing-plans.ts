@@ -2,6 +2,8 @@
  * One Whop product (Echt AI). Same features everywhere; billing options differ.
  */
 
+import { withPostCheckoutRedirect } from "@/lib/whop-checkout-url";
+
 export type CardBadge = { label: string; variant: "red" | "green" | "slate" };
 
 /** Visual treatment for the CTA button and borders */
@@ -45,6 +47,10 @@ function uAnnual() {
   return process.env.NEXT_PUBLIC_WHOP_CHECKOUT_ANNUAL ?? DEFAULT_CHECKOUT.annual;
 }
 
+function checkoutWithReturn(base: string): string {
+  return withPostCheckoutRedirect(base);
+}
+
 export const ECHT_PRODUCT_FEATURES: string[] = [
   "Unlimited document scans in Analyze (fair use policy applies)",
   "Full verification for payslips, bank statements, and IDs in one workflow",
@@ -63,7 +69,7 @@ export function getTrialCard(): PricingCardConfig {
     priceMain: "Free trial",
     subline: "Seven days full access, then £249 per month unless you cancel.",
     cta: "Start free trial",
-    checkoutUrl: uTrial(),
+    checkoutUrl: checkoutWithReturn(uTrial()),
     variant: "trial",
     footnote: "Nothing to lose. Use your own documents.",
   };
@@ -76,7 +82,7 @@ export function getQuarterlyCard(): PricingCardConfig {
     priceMain: "£597 per quarter",
     subline: "£199 per month when billed quarterly. Save 20% vs monthly.",
     cta: "Subscribe",
-    checkoutUrl: uQuarterly(),
+    checkoutUrl: checkoutWithReturn(uQuarterly()),
     variant: "subscribeOutline",
     footnote: "Best balance of savings and flexibility.",
   };
@@ -91,7 +97,7 @@ export function getMonthlyCard(): PricingCardConfig {
     priceMain: "£249 per month",
     subline: "Billed monthly. Cancel any time.",
     cta: "Subscribe",
-    checkoutUrl: uMonthly(),
+    checkoutUrl: checkoutWithReturn(uMonthly()),
     variant: "subscribePopular",
     footnote: "Ideal when you want to stay nimble.",
   };
@@ -106,7 +112,7 @@ export function getAnnualCard(): PricingCardConfig {
     priceMain: "£1,788 per year",
     subline: "£149 per month effective. One payment, twelve months of access.",
     cta: "Subscribe",
-    checkoutUrl: uAnnual(),
+    checkoutUrl: checkoutWithReturn(uAnnual()),
     variant: "subscribeGreen",
     footnote: "After your trial, the strongest value on the ladder.",
   };

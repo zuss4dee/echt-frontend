@@ -19,6 +19,23 @@ Register this URL in the Whop dashboard when creating a webhook:
 | `WHOP_PRODUCT_ID` | Defaults to `prod_n4pIDJRqfBUx0` — must match the product you pass to `users.checkAccess`. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Lets the webhook upsert `public.whop_entitlements` (never expose to the client). |
 | `WHOP_SKIP_SUBSCRIPTION_GATE` | Set to `true` **only in local dev** to skip the paywall. |
+| `NEXT_PUBLIC_APP_URL` | Site origin (e.g. `https://www.useecht.com`). Used to build the **post-checkout return URL** appended to hosted Whop checkout links (`/login?checkout=success`). |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM` | Optional. Query parameter name for that return URL on hosted checkout links. Defaults to **`onSuccess`** (per Whop checkout links docs). Change only if Whop renames the param. |
+| `NEXT_PUBLIC_WHOP_FORUM_URL` | Public Whop **members’ forum** URL (Analyze shows **Join community** for paid, non-trial members). |
+| `NEXT_PUBLIC_WHOP_SUPPORT_CHAT_URL` | Public Whop **support chat** URL (marketing “Contact”, pricing “Contact us”, Analyze “Contact support”). |
+| `NEXT_PUBLIC_WHOP_PRODUCT_UPDATES_URL` | Public Whop **product updates** URL (e.g. `/contact` hub). |
+
+## Hosted checkout → return to Echt (Phase 1)
+
+- **Approach:** Keep Whop **hosted** checkout URLs (`https://whop.com/checkout/plan_...`) from `lib/pricing-plans.ts`.
+- **Redirect:** `lib/whop-checkout-url.ts` appends the success redirect so users return to **`{NEXT_PUBLIC_APP_URL}/login?checkout=success`** (sign in with the **same email** as Whop). If `NEXT_PUBLIC_APP_URL` is unset, no extra query param is added.
+- **Parameter name:** Default **`onSuccess`** (Whop docs). Not to be confused with embedded checkout’s `returnUrl` / `onComplete` (**Phase 2**, optional).
+- **Dashboard:** You can also set a global checkout redirect in Whop **Dashboard → Checkout** as a backup.
+
+## Supabase Auth redirect URLs
+
+- Magic links and OAuth still use **`/auth/callback`** — that path must stay in the Supabase **Redirect URL allow list** (e.g. `https://www.useecht.com/auth/callback`).
+- Landing on **`/login?checkout=success`** after Whop does **not** need to be allowlisted **unless** you pass `/login` as Supabase `redirectTo` for email links. The app’s normal flow is: Whop → your site `/login` → user requests magic link → Supabase → `/auth/callback` → app.
 
 ## Database
 

@@ -14,12 +14,14 @@ import {
   PlusSquare,
   Search,
   Shield,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getWhopForumUrl, getWhopSupportChatUrl } from "@/lib/whop-experience-urls";
 import {
   getProfileLetter,
   isOnboardingComplete,
@@ -187,6 +189,7 @@ export default function Home() {
 
   const [authReady, setAuthReady] = useState(false);
   const [userProfile, setUserProfile] = useState<LocalUserProfile>(EMPTY_PROFILE);
+  const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -224,6 +227,28 @@ export default function Home() {
       cancelled = true;
     };
   }, [router]);
+
+  useEffect(() => {
+    if (!authReady || !userProfile.email) return;
+    let cancelled = false;
+    void (async () => {
+      const supabase = createSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from("whop_entitlements")
+        .select("membership_status")
+        .eq("email", userProfile.email)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        console.error("whop_entitlements fetch:", error);
+        return;
+      }
+      setMembershipStatus(data?.membership_status ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authReady, userProfile.email]);
 
   useEffect(() => {
     if (!authReady) return;
@@ -474,6 +499,13 @@ export default function Home() {
     secondaryVerdictSubtitle = "No critical policy violations detected";
   }
 
+  const forumUrl = getWhopForumUrl();
+  const showJoinCommunityForum =
+    Boolean(forumUrl) &&
+    (membershipStatus === "active" || membershipStatus === "past_due");
+  const supportChatHref = getWhopSupportChatUrl() || "/contact";
+  const supportChatIsExternal = supportChatHref.startsWith("http");
+
   const landingSidebarNode = useMemo(
     () => (
       <div
@@ -488,6 +520,21 @@ export default function Home() {
             <EchtWordmark className="block h-7 w-auto max-w-full text-neutral-800" />
           </div>
         </header>
+
+        {showJoinCommunityForum ? (
+          <div className="mt-4 shrink-0">
+            <a
+              href={forumUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-[12px] font-semibold transition hover:bg-white"
+              style={{ borderColor: COLORS.border, color: COLORS.purple }}
+            >
+              <Users className="h-4 w-4 shrink-0" aria-hidden />
+              Join community
+            </a>
+          </div>
+        ) : null}
 
         <div className="mt-auto w-full pt-4">
           <button
@@ -517,7 +564,7 @@ export default function Home() {
         </div>
       </div>
     ),
-    [profileLetter, setProfileOpen, userProfile.displayName],
+    [forumUrl, profileLetter, setProfileOpen, showJoinCommunityForum, userProfile.displayName],
   );
 
   const workspaceSidebarNode = useMemo(
@@ -587,6 +634,21 @@ export default function Home() {
             </a>
           </nav>
         </div>
+
+        {showJoinCommunityForum ? (
+          <div className="mb-5 shrink-0">
+            <a
+              href={forumUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-[12px] font-semibold transition hover:bg-white"
+              style={{ borderColor: COLORS.border, color: COLORS.purple }}
+            >
+              <Users className="h-4 w-4 shrink-0" aria-hidden />
+              Join community
+            </a>
+          </div>
+        ) : null}
 
         {/* RECENT SCANS */}
         <div className="mt-auto">
@@ -669,12 +731,14 @@ export default function Home() {
     ),
     [
       formatTimeAgo,
+      forumUrl,
       handleResetScan,
       isUploading,
       onFileInputChange,
       profileLetter,
       recentScans,
       setProfileOpen,
+      showJoinCommunityForum,
       uploadError,
       userProfile.displayName,
     ],
@@ -1727,9 +1791,21 @@ export default function Home() {
                   </ul>
                   <p className="pt-1 text-[10px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
                     Questions about data or your agreement?{" "}
-                    <Link href="/contact" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
-                      Contact us
-                    </Link>
+                    {supportChatIsExternal ? (
+                      <a
+                        href={supportChatHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium underline underline-offset-2 hover:opacity-80"
+                        style={{ color: COLORS.purple }}
+                      >
+                        Contact us
+                      </a>
+                    ) : (
+                      <Link href={supportChatHref} className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
+                        Contact us
+                      </Link>
+                    )}
                     . Legal terms:{" "}
                     <Link href="/terms" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
                       Terms
@@ -1896,15 +1972,28 @@ export default function Home() {
                       <HelpCircle className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
                       Help &amp; FAQ
                     </Link>
-                    <Link
-                      href="/contact"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
-                      style={{ color: COLORS.textPrimary }}
-                    >
-                      <Mail className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
-                      Contact support
-                    </Link>
+                    {supportChatIsExternal ? (
+                      <a
+                        href={supportChatHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
+                        style={{ color: COLORS.textPrimary }}
+                      >
+                        <Mail className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
+                        Contact support
+                      </a>
+                    ) : (
+                      <Link
+                        href={supportChatHref}
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
+                        style={{ color: COLORS.textPrimary }}
+                      >
+                        <Mail className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
+                        Contact support
+                      </Link>
+                    )}
                   </nav>
                 </section>
               </div>

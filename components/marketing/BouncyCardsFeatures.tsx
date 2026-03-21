@@ -6,7 +6,12 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { InteractiveHoverButton } from "@/registry/magicui/interactive-hover-button";
 
-export function BouncyCardsFeatures() {
+type BouncyCardsFeaturesProps = {
+  /** Scroll to pricing on the same page (e.g. home) instead of navigating away. */
+  onRunFreeScan: () => void;
+};
+
+export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps) {
   return (
     <section id="how-echt-works" className="scroll-mt-24 bg-white">
       <div className="mx-auto max-w-7xl px-3 py-14 text-slate-800 sm:px-4 sm:py-20">
@@ -16,7 +21,8 @@ export function BouncyCardsFeatures() {
             <span className="text-slate-600">in one workflow</span>
           </h2>
           <InteractiveHoverButton
-            href="/login"
+            type="button"
+            onClick={onRunFreeScan}
             className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 !text-white shadow-xl transition-colors hover:bg-slate-800 hover:!text-white sm:w-auto sm:whitespace-nowrap"
           >
             Run a Free Scan
