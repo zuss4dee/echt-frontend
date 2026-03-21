@@ -24,6 +24,23 @@ Register this URL in the Whop dashboard when creating a webhook:
 | `NEXT_PUBLIC_WHOP_FORUM_URL` | Public Whop **members’ forum** URL (Analyze shows **Join community** for paid, non-trial members). |
 | `NEXT_PUBLIC_WHOP_SUPPORT_CHAT_URL` | Public Whop **support chat** URL (marketing “Contact”, pricing “Contact us”, Analyze “Contact support”). |
 | `NEXT_PUBLIC_WHOP_PRODUCT_UPDATES_URL` | Public Whop **product updates** URL (e.g. `/contact` hub). |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_TRIAL` | Optional. Full hosted checkout URL for the **trial** plan. Defaults in code to `plan_8LkmfefKiGRTz`. Must be a plan that has a **free trial** configured in Whop or checkout will ask for payment up front. |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_MONTHLY` | Optional. Monthly plan checkout URL. |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_QUARTERLY` | Optional. Quarterly plan checkout URL. |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_ANNUAL` | Optional. Annual plan checkout URL. |
+
+## Free trial: checkout asks for full payment
+
+The site **Start free trial** button only opens Whop’s checkout for whatever **plan ID** is configured (`NEXT_PUBLIC_WHOP_CHECKOUT_TRIAL` or the default in `lib/pricing-plans.ts`). **Whop controls** whether that checkout is truly a trial (card on file, no charge today) or immediate payment.
+
+**If users see full payment instead of a trial:**
+
+1. In **Whop Dashboard**, open your **Echt AI** product → **Plans** (or **Pricing**).
+2. Find the plan whose checkout URL you use for the trial card, or **create a plan** intended for trials.
+3. Enable a **free trial** on that plan (for example **7 days**) and set what happens after (for example bill monthly). Exact labels vary by Whop UI version.
+4. Use **Copy checkout link** (or equivalent) for **that** plan and set **`NEXT_PUBLIC_WHOP_CHECKOUT_TRIAL`** in Vercel to the full URL, then redeploy.
+
+If a plan has **no trial period** in Whop, it will always charge (or authorize) like a normal subscription.
 
 ## Hosted checkout → return to Echt (Phase 1)
 

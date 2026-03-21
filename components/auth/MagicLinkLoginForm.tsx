@@ -9,9 +9,14 @@ import { EchtWordmark } from "@/components/EchtLogo";
 type MagicLinkLoginFormProps = {
   /** Set when redirected from `/auth/callback` with `?error=true`. */
   callbackError?: boolean;
+  /** After Whop checkout, user lands on `/login?checkout=success`. */
+  checkoutSuccess?: boolean;
 };
 
-export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginFormProps) {
+export function MagicLinkLoginForm({
+  callbackError = false,
+  checkoutSuccess = false,
+}: MagicLinkLoginFormProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
@@ -72,6 +77,19 @@ export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginForm
           Enter your email below to create your account
         </p>
       </div>
+
+      {checkoutSuccess ? (
+        <div
+          className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-[13px] leading-relaxed text-emerald-950"
+          role="status"
+        >
+          <p className="font-medium text-emerald-950">Payment received</p>
+          <p className="mt-1.5 text-emerald-900/90">
+            Sign in with the <strong>same email address</strong> you used for your Whop payment.
+            That way we can link your account and unlock Analyze.
+          </p>
+        </div>
+      ) : null}
 
       {success ? (
         <div

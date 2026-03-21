@@ -47,37 +47,33 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const isOnboarding =
+    pathname === "/onboarding" || pathname.startsWith("/onboarding/");
   const isProtectedApp =
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
     pathname === "/analyze" ||
     pathname.startsWith("/analyze/") ||
-    pathname === "/onboarding" ||
-    pathname.startsWith("/onboarding/");
+    isOnboarding;
 
   // Signed-in users should not stay on the login page.
   if (pathname === "/login" && user) {
     const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
-    if (!hasWhop) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/pricing";
-      redirectUrl.searchParams.delete("error");
-      redirectUrl.searchParams.set("subscribe", "1");
-      const redirectResponse = NextResponse.redirect(redirectUrl);
-      supabaseResponse.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(
-          cookie.name,
-          cookie.value,
-          cookie as CookieOptions,
-        );
-      });
-      return redirectResponse;
-    }
     const onboardingDone = user.user_metadata?.onboarding_complete === true;
-    const dest = onboardingDone ? "/analyze" : "/onboarding";
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = dest;
     redirectUrl.searchParams.delete("error");
+
+    if (!hasWhop) {
+      if (!onboardingDone) {
+        redirectUrl.pathname = "/onboarding";
+      } else {
+        redirectUrl.pathname = "/pricing";
+        redirectUrl.searchParams.set("subscribe", "1");
+      }
+    } else {
+      redirectUrl.pathname = onboardingDone ? "/analyze" : "/onboarding";
+    }
+
     const redirectResponse = NextResponse.redirect(redirectUrl);
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(
@@ -108,7 +104,8 @@ export async function proxy(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (isProtectedApp && user) {
+  // Onboarding is allowed without Whop so paying users can complete profile while the webhook syncs.
+  if (isProtectedApp && user && !isOnboarding) {
     const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
     if (!hasWhop) {
       const redirectUrl = request.nextUrl.clone();

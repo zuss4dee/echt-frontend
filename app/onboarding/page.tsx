@@ -134,7 +134,28 @@ export default function OnboardingPage() {
         return;
       }
 
-      router.replace("/analyze");
+      const POLL_MS = 1500;
+      const MAX_POLLS = 28;
+      let hasAccess = false;
+      for (let i = 0; i < MAX_POLLS; i++) {
+        const res = await fetch("/api/whop/access-status", { credentials: "include" });
+        if (res.ok) {
+          const body = (await res.json()) as { hasAccess?: boolean };
+          if (body.hasAccess === true) {
+            hasAccess = true;
+            break;
+          }
+        }
+        if (i < MAX_POLLS - 1) {
+          await new Promise((r) => setTimeout(r, POLL_MS));
+        }
+      }
+
+      if (hasAccess) {
+        router.replace("/analyze");
+      } else {
+        router.replace("/pricing?subscribe=1&access_pending=1");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -265,7 +286,7 @@ export default function OnboardingPage() {
             disabled={submitting}
             className="h-11 w-full rounded-lg bg-neutral-900 py-2.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Saving…" : isLast ? "Finish" : "Continue"}
+            {submitting ? "Finishing up…" : isLast ? "Finish" : "Continue"}
           </button>
 
           {step > 0 ? (

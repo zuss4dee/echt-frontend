@@ -1,5 +1,10 @@
 /**
  * One Whop product (Echt AI). Same features everywhere; billing options differ.
+ *
+ * **Free trial:** The "7-day free trial" card uses `DEFAULT_CHECKOUT.trial` or
+ * `NEXT_PUBLIC_WHOP_CHECKOUT_TRIAL`. Whop only shows a trial at checkout if **that plan**
+ * has a trial period enabled in the Whop dashboard. If checkout asks for full payment
+ * immediately, fix the plan in Whop (or point the env var at a plan that has a trial).
  */
 
 import { withPostCheckoutRedirect } from "@/lib/whop-checkout-url";

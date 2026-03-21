@@ -68,14 +68,19 @@ export async function GET(request: Request) {
     const hasWhop = await getWhopHasAccessFromDb(supabase, user?.email);
     // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
     const onboardingDone = user?.user_metadata?.onboarding_complete === true;
-    const nextPath = !hasWhop
-      ? "/pricing"
-      : onboardingDone
-        ? ANALYZE_PATH
-        : ONBOARDING_PATH;
+
+    // If Whop has not synced yet (webhook delay), still send new users to onboarding, not pricing.
+    let nextPath: string;
+    if (hasWhop) {
+      nextPath = onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH;
+    } else if (onboardingDone) {
+      nextPath = "/pricing";
+    } else {
+      nextPath = ONBOARDING_PATH;
+    }
 
     const redirectUrl = new URL(nextPath, origin);
-    if (!hasWhop) {
+    if (!hasWhop && onboardingDone) {
       redirectUrl.searchParams.set("subscribe", "1");
     }
 
