@@ -20,7 +20,7 @@ Register this URL in the Whop dashboard when creating a webhook:
 | `SUPABASE_SERVICE_ROLE_KEY` | Lets the webhook upsert `public.whop_entitlements` (never expose to the client). |
 | `WHOP_SKIP_SUBSCRIPTION_GATE` | Set to `true` **only in local dev** to skip the paywall. |
 | `NEXT_PUBLIC_APP_URL` | Site origin (e.g. `https://www.useecht.com`). Used to build the **post-checkout return URL** appended to hosted Whop checkout links (`/login?checkout=success`). |
-| `NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM` | Optional. Query parameter name for that return URL on hosted checkout links. Defaults to **`onSuccess`** (per Whop checkout links docs). Change only if Whop renames the param. |
+| `NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM` | Optional. **Primary** query param for the post-checkout URL. Defaults to **`redirect_url`**. The code also appends **`onSuccess`** with the same URL when the primary name isn’t `onSuccess`, so different Whop versions still return buyers to Echt. |
 | `NEXT_PUBLIC_WHOP_FORUM_URL` | Public Whop **members’ forum** URL (Analyze shows **Join community** for paid, non-trial members). |
 | `NEXT_PUBLIC_WHOP_SUPPORT_CHAT_URL` | Public Whop **support chat** URL (marketing “Contact”, pricing “Contact us”, Analyze “Contact support”). |
 | `NEXT_PUBLIC_WHOP_PRODUCT_UPDATES_URL` | Public Whop **product updates** URL (e.g. `/contact` hub). |
@@ -28,9 +28,9 @@ Register this URL in the Whop dashboard when creating a webhook:
 ## Hosted checkout → return to Echt (Phase 1)
 
 - **Approach:** Keep Whop **hosted** checkout URLs (`https://whop.com/checkout/plan_...`) from `lib/pricing-plans.ts`.
-- **Redirect:** `lib/whop-checkout-url.ts` appends the success redirect so users return to **`{NEXT_PUBLIC_APP_URL}/login?checkout=success`** (sign in with the **same email** as Whop). If `NEXT_PUBLIC_APP_URL` is unset, no extra query param is added.
-- **Parameter name:** Default **`onSuccess`** (Whop docs). Not to be confused with embedded checkout’s `returnUrl` / `onComplete` (**Phase 2**, optional).
-- **Dashboard:** You can also set a global checkout redirect in Whop **Dashboard → Checkout** as a backup.
+- **Redirect:** `lib/whop-checkout-url.ts` appends **`redirect_url`** and **`onSuccess`** (same destination) so users return to **`{NEXT_PUBLIC_APP_URL}/login?checkout=success`** after payment. If **`NEXT_PUBLIC_APP_URL` is unset in Vercel**, no params are added—buyers stay on Whop’s default (often the community). **Set `NEXT_PUBLIC_APP_URL` in production.**
+- **Dashboard (critical if you still land on Whop community):** In Whop **Settings → Checkout** (or product checkout settings), set the **post-purchase / success redirect** to your app (e.g. `https://www.useecht.com/login?checkout=success`). A dashboard “default to community” rule can override link params.
+- **Embedded checkout** uses `returnUrl` / `onComplete` instead—that’s **Phase 2**, optional.
 
 ## Supabase Auth redirect URLs
 

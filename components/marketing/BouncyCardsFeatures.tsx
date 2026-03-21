@@ -16,10 +16,17 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
     <section id="how-echt-works" className="scroll-mt-24 bg-white">
       <div className="mx-auto max-w-7xl px-3 py-14 text-slate-800 sm:px-4 sm:py-20">
         <div className="mb-10 flex flex-col items-stretch justify-between gap-4 md:mb-12 md:flex-row md:items-end md:px-8">
-          <h2 className="max-w-xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-            Forensic checks for every tenancy,{" "}
-            <span className="text-slate-600">in one workflow</span>
-          </h2>
+          <div className="max-w-2xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
+              Forensic checks for every tenancy,{" "}
+              <span className="text-slate-600">in one place</span>
+            </h2>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-slate-600 sm:text-base">
+              Echt is a document verification app for referencing teams: upload payslips, bank
+              statements, or IDs and get structured evidence—metadata, tamper signals, and a clear
+              outcome—so you can approve or challenge with confidence.
+            </p>
+          </div>
           <InteractiveHoverButton
             type="button"
             onClick={onRunFreeScan}
@@ -34,7 +41,8 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
             <CardTitle>File DNA &amp; metadata</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-violet-500 to-indigo-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-indigo-50">
-                EXIF, creation history, and structure signals before an analyst opens the PDF.
+                See creation times, export history, and structure before you trust what&apos;s on
+                screen—so edited or re-saved files don&apos;t slip through as originals.
               </span>
             </div>
           </BounceCard>
@@ -42,8 +50,8 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
             <CardTitle>Pixel-level forgery detection</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-orange-50">
-                ELA-style heatmaps and tamper regions with coordinates, built for referencing ops, not
-                generic “AI scores”.
+                Heatmaps highlight regions that may have been changed—so your team reviews
+                tampering with context, not a vague “AI probability.”
               </span>
             </div>
           </BounceCard>
@@ -54,8 +62,8 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
             <CardTitle>Verdicts teams can defend</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-emerald-50">
-                RED / AMBER / GREEN policy output with reasons and audit trail, so approvals hold up
-                under scrutiny.
+                RED, AMBER, or GREEN with plain-English reasons—evidence you can stand behind in
+                audits, disputes, and file notes.
               </span>
             </div>
           </BounceCard>
@@ -63,7 +71,8 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
             <CardTitle>AI narrative signals</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-purple-500 to-[#4B00E0] p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-purple-50">
-                Flag synthetic explanations and inconsistent stories alongside document evidence.
+                Surfaces weak or inconsistent wording next to the forensic readout—so reviewers know
+                what to ask before they sign off.
               </span>
             </div>
           </BounceCard>

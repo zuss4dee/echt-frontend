@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Instagram, Linkedin, X } from "lucide-react";
 import { EchtWordmark } from "@/components/EchtLogo";
@@ -11,6 +11,7 @@ import { BouncyCardsFeatures } from "@/components/marketing/BouncyCardsFeatures"
 import { PricingSection } from "@/components/marketing/PricingSection";
 import { RoiCalculator } from "@/components/marketing/RoiCalculator";
 import { ContactUsModal } from "@/components/marketing/ContactUsModal";
+import { FaqModal } from "@/components/marketing/FaqModal";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -19,6 +20,16 @@ function scrollToId(id: string) {
 
 export default function LandingPage() {
   const [contactOpen, setContactOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("openFaq") === "1") {
+      setFaqOpen(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
@@ -51,18 +62,19 @@ export default function LandingPage() {
                   </Link>
                 </div>
                 <nav className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2 text-xs font-medium text-white/85 sm:flex-none sm:gap-6 sm:text-[13px] md:gap-8">
-                  <Link
-                    href="/login"
-                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
-                  >
-                    Platform
-                  </Link>
                   <button
                     type="button"
                     className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
                     onClick={() => scrollToId("security")}
                   >
                     Security
+                  </button>
+                  <button
+                    type="button"
+                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
+                    onClick={() => setFaqOpen(true)}
+                  >
+                    FAQ
                   </button>
                   <button
                     type="button"
@@ -339,18 +351,20 @@ export default function LandingPage() {
               >
                 Contact us
               </button>
-              <Link
-                href="/faq"
-                className="font-medium text-zinc-400 transition-colors hover:text-white"
+              <button
+                type="button"
+                onClick={() => setFaqOpen(true)}
+                className="text-left font-medium text-zinc-400 transition-colors hover:text-white sm:text-center"
               >
                 FAQ
-              </Link>
+              </button>
             </nav>
           </div>
         </footer>
       </div>
 
       <ContactUsModal open={contactOpen} onOpenChange={setContactOpen} />
+      <FaqModal open={faqOpen} onOpenChange={setFaqOpen} />
 
       {/* Local animation keyframes */}
       <style jsx>{`

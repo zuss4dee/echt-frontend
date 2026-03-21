@@ -36,6 +36,12 @@ export function ContactUsModal({ open, onOpenChange }: ContactUsModalProps) {
     panelRef.current?.querySelector<HTMLInputElement>("input:not([type=hidden])")?.focus();
   }, [open]);
 
+  useEffect(() => {
+    if (open) return;
+    setStatus("idle");
+    setErrorMessage(null);
+  }, [open]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setStatus("sending");
@@ -94,13 +100,24 @@ export function ContactUsModal({ open, onOpenChange }: ContactUsModalProps) {
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-          Ask a question about Echt or tenant referencing. We&apos;ll get back to you by email.
+          We&apos;re glad you reached out. Tell us how we can help—we read every message and
+          respond as soon as we can.
         </p>
 
         {status === "success" ? (
-          <p className="mt-6 text-sm font-medium text-emerald-700" role="status">
-            Thanks — your message was sent.
-          </p>
+          <div className="mt-6 space-y-4">
+            <p className="text-sm leading-relaxed text-emerald-800" role="status">
+              <span className="font-semibold">Thank you for contacting us.</span> Your message is
+              in our inbox and our team will reply to the email address you provided shortly.
+            </p>
+            <button
+              type="button"
+              onClick={close}
+              className="inline-flex rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+            >
+              Close
+            </button>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="hidden" aria-hidden>

@@ -1,17 +1,21 @@
 /**
  * Hosted Whop checkout links: append post-purchase return URL.
  *
- * **Phase 1:** query param on the checkout URL (see Whop “Checkout links” docs).
- * Default param name is `onSuccess` (documented for hosted links). If Whop changes
- * this or your dashboard uses another name, set `NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM`.
+ * Whop has used both `redirect_url` and `onSuccess` in docs over time. We append **both**
+ * with the same destination so either the link param or the dashboard “success URL”
+ * wiring picks it up. Override the primary name with `NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM`
+ * (single param only) if you need to match a specific integration.
+ *
+ * **Also set** Whop Dashboard → Settings → Checkout → success / redirect URL to your
+ * site if purchases still land on the community page (dashboard can override links).
  *
  * **Phase 2 (optional):** embedded checkout uses `returnUrl` / `onComplete` instead — not handled here.
  */
 
 import { getPostCheckoutLoginPath } from "@/lib/whop-post-checkout-path";
 
-function getSuccessParamName(): string {
-  return process.env.NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM?.trim() || "onSuccess";
+function getPrimaryRedirectParamName(): string {
+  return process.env.NEXT_PUBLIC_WHOP_CHECKOUT_SUCCESS_PARAM?.trim() || "redirect_url";
 }
 
 /**
@@ -30,7 +34,19 @@ export function getPostCheckoutLoginUrl(): string {
 export function withPostCheckoutRedirect(checkoutUrl: string): string {
   const returnUrl = getPostCheckoutLoginUrl();
   if (!returnUrl) return checkoutUrl;
-  const param = getSuccessParamName();
+
+  const encoded = encodeURIComponent(returnUrl);
+  const primary = getPrimaryRedirectParamName();
+
+  const parts: string[] = [`${primary}=${encoded}`];
+  // Secondary alias so older Whop flows that only read `onSuccess` still return to Echt.
+  if (primary !== "onSuccess") {
+    parts.push(`onSuccess=${encoded}`);
+  }
+  if (primary !== "redirect_url") {
+    parts.push(`redirect_url=${encoded}`);
+  }
+
   const sep = checkoutUrl.includes("?") ? "&" : "?";
-  return `${checkoutUrl}${sep}${param}=${encodeURIComponent(returnUrl)}`;
+  return `${checkoutUrl}${sep}${parts.join("&")}`;
 }

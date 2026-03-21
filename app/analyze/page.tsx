@@ -1964,7 +1964,7 @@ export default function Home() {
                   </h4>
                   <nav className="flex flex-col gap-1" aria-label="Help and account links">
                     <Link
-                      href="/faq"
+                      href="/?openFaq=1"
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
                       style={{ color: COLORS.textPrimary }}
