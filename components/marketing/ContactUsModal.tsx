@@ -100,8 +100,8 @@ export function ContactUsModal({ open, onOpenChange }: ContactUsModalProps) {
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-          We&apos;re glad you reached out. Tell us how we can help—we read every message and
-          respond as soon as we can.
+          We&apos;re glad you reached out. Tell us how we can help. We read every message and respond
+          as soon as we can.
         </p>
 
         {status === "success" ? (

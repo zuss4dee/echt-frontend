@@ -7,7 +7,7 @@ import {
 
 export const metadata = {
   title: "Contact | Echt",
-  description: "Reach Echt on Whop — support chat, community, and product updates.",
+  description: "Reach Echt on Whop: support chat, community, and product updates.",
 };
 
 const linkClass =
@@ -25,7 +25,7 @@ export default function ContactPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Contact &amp; community</h1>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600">
           Sales, support, and product conversations run on{" "}
-          <span className="font-medium text-zinc-800">Whop</span>. Pick the channel you need — each
+          <span className="font-medium text-zinc-800">Whop</span>. Pick the channel you need. Each
           opens in a new tab.
         </p>
 
@@ -34,7 +34,7 @@ export default function ContactPage() {
             {supportChatUrl ? (
               <li className="flex flex-col gap-1 rounded-xl border border-zinc-100 bg-zinc-50/80 px-4 py-3">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Primary — support
+                  Primary (support)
                 </span>
                 <a
                   href={supportChatUrl}

@@ -9,7 +9,7 @@ export const ECHT_FAQ_ITEMS: FaqItem[] = [
   {
     question: "Does Echt replace our referencing team?",
     answer:
-      "No. Echt is decision support. It highlights anomalies, metadata, and tamper signals so your analysts can review faster—not replace human judgment.",
+      "No. Echt is decision support. It highlights anomalies, metadata, and tamper signals so your analysts can review faster, not to replace human judgment.",
   },
   {
     question: "How long does a forensic scan take?",
