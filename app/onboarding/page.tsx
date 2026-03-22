@@ -74,7 +74,7 @@ export default function OnboardingPage() {
             router.replace("/analyze");
             return;
           }
-          // Do not send to /analyze without access (proxy would send users to pricing).
+          // Do not send to /analyze without access (proxy would send users to marketing + subscribe).
           setWaitingForAccess(true);
           setReady(true);
           return;
@@ -189,7 +189,7 @@ export default function OnboardingPage() {
       if (hasAccess) {
         router.replace("/analyze");
       } else {
-        router.replace("/pricing?subscribe=1&access_pending=1");
+        router.replace("/?subscribe=1&access_pending=1");
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");

@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 
 /**
- * Banners when users land on `/pricing` after checkout or while access is still syncing.
+ * Banners on the marketing home when `checkout=success`, `access_pending=1`, etc.
  */
 export function PricingCheckoutBanner() {
   const searchParams = useSearchParams();

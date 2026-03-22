@@ -81,18 +81,12 @@ export default function ContactPage() {
           </p>
         )}
 
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="mt-10 flex justify-center">
           <Link
             href="/"
             className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
           >
             Back to site
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full border border-zinc-300 px-6 py-2.5 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-100"
-          >
-            Sign in
           </Link>
         </div>
       </div>

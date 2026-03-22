@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { Instagram, Linkedin, X } from "lucide-react";
 import { EchtWordmark } from "@/components/EchtLogo";
@@ -12,6 +12,7 @@ import { PricingSection } from "@/components/marketing/PricingSection";
 import { RoiCalculator } from "@/components/marketing/RoiCalculator";
 import { ContactUsModal } from "@/components/marketing/ContactUsModal";
 import { FaqModal } from "@/components/marketing/FaqModal";
+import { PricingCheckoutBanner } from "@/components/marketing/PricingCheckoutBanner";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -31,8 +32,23 @@ export default function LandingPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get("subscribe") === "1" ||
+      params.get("access_pending") === "1"
+    ) {
+      const id = window.setTimeout(() => scrollToId("pricing"), 150);
+      return () => window.clearTimeout(id);
+    }
+  }, []);
+
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
+      <Suspense fallback={null}>
+        <PricingCheckoutBanner />
+      </Suspense>
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col pb-12">
         {/* Hero: full-viewport silk + glass nav / center stack (reference layout) */}
@@ -83,6 +99,12 @@ export default function LandingPage() {
                   >
                     Contact us
                   </button>
+                  <Link
+                    href="/login"
+                    className="shrink-0 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/15 sm:py-1 sm:text-[13px] sm:normal-case sm:tracking-normal"
+                  >
+                    Log in
+                  </Link>
                   <div className="hidden h-4 w-px shrink-0 bg-white/25 md:block" aria-hidden />
                   <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
                     <a

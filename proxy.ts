@@ -66,7 +66,7 @@ export async function proxy(request: NextRequest) {
     if (hasWhop && onboardingDone) {
       redirectUrl.pathname = "/analyze";
     } else {
-      // No Whop row yet (payment webhook pending): never bounce to /pricing from here.
+      // No Whop row yet (payment webhook pending): never bounce to marketing subscribe from here.
       redirectUrl.pathname = "/onboarding";
     }
 
@@ -104,9 +104,7 @@ export async function proxy(request: NextRequest) {
   if (isProtectedApp && user && !isOnboarding) {
     const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
     if (!hasWhop) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/pricing";
-      redirectUrl.searchParams.delete("error");
+      const redirectUrl = new URL("/", request.nextUrl.origin);
       redirectUrl.searchParams.set("subscribe", "1");
       const redirectResponse = NextResponse.redirect(redirectUrl);
       supabaseResponse.cookies.getAll().forEach((cookie) => {

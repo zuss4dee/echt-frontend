@@ -69,7 +69,7 @@ export async function GET(request: Request) {
     // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
     const onboardingDone = user?.user_metadata?.onboarding_complete === true;
 
-    // Never send users to /pricing from here when Whop has not synced yet (webhook delay after
+    // Never send users to marketing subscribe from here when Whop has not synced yet (webhook delay after
     // payment). Always land on onboarding until has_access is true; onboarding checks access
     // before sending anyone to /analyze.
     let nextPath: string;
