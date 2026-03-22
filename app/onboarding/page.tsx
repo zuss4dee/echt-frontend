@@ -19,6 +19,17 @@ const STEPS = [
   { key: "monthly_references" as const, title: "Monthly volume", description: "References you process per month." },
 ] as const;
 
+/** Reconciles Whop + DB (fixes webhook delay / missing `whop_entitlements` row). */
+async function fetchReconciledWhopAccess(): Promise<boolean> {
+  const res = await fetch("/api/whop/verify-access", {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) return false;
+  const body = (await res.json()) as { has_access?: boolean };
+  return body.has_access === true;
+}
+
 const MONTHLY_REFERENCE_OPTIONS: { value: string; label: string }[] = [
   { value: "1-50", label: "1 to 50" },
   { value: "51-200", label: "51 to 200" },
@@ -57,10 +68,9 @@ export default function OnboardingPage() {
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (isOnboardingComplete(meta)) {
-          const res = await fetch("/api/whop/access-status", { credentials: "include" });
-          const body = res.ok ? ((await res.json()) as { hasAccess?: boolean }) : { hasAccess: false };
+          const hasAccess = await fetchReconciledWhopAccess();
           if (cancelled) return;
-          if (body.hasAccess === true) {
+          if (hasAccess) {
             router.replace("/analyze");
             return;
           }
@@ -91,10 +101,8 @@ export default function OnboardingPage() {
     let cancelled = false;
     const POLL_MS = 1500;
     const tick = async () => {
-      const res = await fetch("/api/whop/access-status", { credentials: "include" });
-      if (cancelled || !res.ok) return;
-      const body = (await res.json()) as { hasAccess?: boolean };
-      if (body.hasAccess === true) {
+      if (cancelled) return;
+      if (await fetchReconciledWhopAccess()) {
         router.replace("/analyze");
       }
     };
@@ -169,13 +177,9 @@ export default function OnboardingPage() {
       const MAX_POLLS = 28;
       let hasAccess = false;
       for (let i = 0; i < MAX_POLLS; i++) {
-        const res = await fetch("/api/whop/access-status", { credentials: "include" });
-        if (res.ok) {
-          const body = (await res.json()) as { hasAccess?: boolean };
-          if (body.hasAccess === true) {
-            hasAccess = true;
-            break;
-          }
+        if (await fetchReconciledWhopAccess()) {
+          hasAccess = true;
+          break;
         }
         if (i < MAX_POLLS - 1) {
           await new Promise((r) => setTimeout(r, POLL_MS));
@@ -219,9 +223,7 @@ export default function OnboardingPage() {
             Almost there
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-neutral-600">
-            Your profile is saved. We are confirming your Whop subscription in the background.
-            This page will open Analyze as soon as it is ready. Use the same email you used at
-            checkout.
+            Confirming your subscription. Echt AI will open here when ready.
           </p>
           <p className="mt-6 text-sm text-neutral-400">Checking access…</p>
         </div>

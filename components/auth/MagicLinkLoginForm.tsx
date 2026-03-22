@@ -74,7 +74,9 @@ export function MagicLinkLoginForm({
           Create an account
         </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-          Enter your email below to create your account
+          {checkoutSuccess
+            ? "Enter the same email you used at Whop checkout below, then request your magic link."
+            : "Enter your email below to create your account"}
         </p>
       </div>
 
@@ -84,10 +86,6 @@ export function MagicLinkLoginForm({
           role="status"
         >
           <p className="font-medium text-emerald-950">Payment received</p>
-          <p className="mt-1.5 text-emerald-900/90">
-            Sign in with the <strong>same email address</strong> you used for your Whop payment.
-            That way we can link your account and unlock Analyze.
-          </p>
         </div>
       ) : null}
 
@@ -122,13 +120,22 @@ export function MagicLinkLoginForm({
             <label htmlFor="email" className="sr-only">
               Email
             </label>
+            {checkoutSuccess ? (
+              <p
+                id="checkout-email-hint"
+                className="mb-2 text-left text-[13px] font-medium text-neutral-600"
+              >
+                Email (same as Whop checkout)
+              </p>
+            ) : null}
             <input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
               inputMode="email"
-              placeholder="name@example.com"
+              placeholder={checkoutSuccess ? "Same email you paid with" : "name@example.com"}
+              aria-describedby={checkoutSuccess ? "checkout-email-hint" : undefined}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}

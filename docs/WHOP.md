@@ -52,7 +52,7 @@ If a plan has **no trial period** in Whop, it will always charge (or authorize) 
 ## Supabase Auth redirect URLs
 
 - Magic links and OAuth still use **`/auth/callback`**. That path must stay in the Supabase **Redirect URL allow list** (e.g. `https://www.useecht.com/auth/callback`).
-- After **`/auth/callback`**, users go to **`/analyze`** only when **`has_access`** and **`onboarding_complete`**. Otherwise they always go to **`/onboarding`** (never `/pricing`). The onboarding page checks access before redirecting to Analyze; if your profile is already complete but Whop has not synced yet, you stay on a short “Almost there” screen instead of bouncing to pricing.
+- After **`/auth/callback`**, users go to **`/analyze`** only when **`has_access`** and **`onboarding_complete`**. Otherwise they always go to **`/onboarding`** (never `/pricing`). The onboarding page checks access before redirecting to Analyze; if your profile is already complete but Whop has not synced yet, you stay on a short “Almost there” screen (confirming Whop, then Echt AI opens) instead of bouncing to pricing.
 - **`/login?checkout=success`** after Whop does not need to be in Supabase redirect allow list unless you use it as `redirectTo`. Normal flow: Whop → `/login?checkout=success` → magic link → `/auth/callback` → onboarding or analyze.
 
 ## Database
@@ -81,7 +81,7 @@ Do **not** manually replace `ws_` with `whsec_` or pre-encode. The SDK client in
 
 1. Whop sends `membership.*` webhooks → `/api/webhooks/whop` updates `whop_entitlements`.
 2. The proxy checks `whop_entitlements.has_access` for `/analyze`, `/onboarding`, `/dashboard`.
-3. Optional: `POST /api/whop/verify-access` calls `users.checkAccess` when `whop_user_id` is already stored (e.g. webhook was delayed).
+3. `POST /api/whop/verify-access` reconciles access: if `whop_user_id` is missing, it finds the Whop member by **email** (same product / company), then runs `users.checkAccess` and upserts `whop_entitlements`. Onboarding polls this while the user sees “Almost there” so login works even when webhooks are slow.
 
 ## Security
 
