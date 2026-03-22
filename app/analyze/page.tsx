@@ -7,7 +7,6 @@ import {
   Dna,
   FileStack,
   FileText,
-  HelpCircle,
   Info,
   LogOut,
   Mail,
@@ -1960,18 +1959,9 @@ export default function Home() {
 
                 <section>
                   <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
-                    Help &amp; account
+                    Support
                   </h4>
-                  <nav className="flex flex-col gap-1" aria-label="Help and account links">
-                    <Link
-                      href="/?openFaq=1"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
-                      style={{ color: COLORS.textPrimary }}
-                    >
-                      <HelpCircle className="h-4 w-4 shrink-0" style={{ color: COLORS.textSecondary }} aria-hidden />
-                      Help &amp; FAQ
-                    </Link>
+                  <nav className="flex flex-col gap-1" aria-label="Support links">
                     {supportChatIsExternal ? (
                       <a
                         href={supportChatHref}
