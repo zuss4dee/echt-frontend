@@ -2,10 +2,18 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getWhopHasAccessFromDb } from "@/lib/whop-entitlements";
+import { reconcileWhopEntitlementForEmail } from "@/lib/whop-reconcile";
 
 const ANALYZE_PATH = "/analyze";
 const ONBOARDING_PATH = "/onboarding";
 const LOGIN_ERROR_PATH = "/login?error=true";
+
+function needsPlanUrl(origin: string) {
+  const u = new URL("/", origin);
+  u.searchParams.set("subscribe", "1");
+  u.searchParams.set("needs_plan", "1");
+  return u;
+}
 
 /**
  * OAuth / email magic-link PKCE callback.
@@ -65,21 +73,26 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const hasWhop = await getWhopHasAccessFromDb(supabase, user?.email);
+    let hasWhop = await getWhopHasAccessFromDb(supabase, user?.email);
+    if (!hasWhop && user?.email) {
+      const r = await reconcileWhopEntitlementForEmail(user.email);
+      hasWhop = r.hasAccess;
+      if (!hasWhop) {
+        hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
+      }
+    }
     // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
     const onboardingDone = user?.user_metadata?.onboarding_complete === true;
 
-    // Never send users to marketing subscribe from here when Whop has not synced yet (webhook delay after
-    // payment). Always land on onboarding until has_access is true; onboarding checks access
-    // before sending anyone to /analyze.
-    let nextPath: string;
+    // Onboarding is only for paying members; others go to marketing with needs_plan.
+    let redirectUrl: URL;
     if (hasWhop && onboardingDone) {
-      nextPath = ANALYZE_PATH;
+      redirectUrl = new URL(ANALYZE_PATH, origin);
+    } else if (hasWhop && !onboardingDone) {
+      redirectUrl = new URL(ONBOARDING_PATH, origin);
     } else {
-      nextPath = ONBOARDING_PATH;
+      redirectUrl = needsPlanUrl(origin);
     }
-
-    const redirectUrl = new URL(nextPath, origin);
 
     const response = NextResponse.redirect(redirectUrl);
     sessionCookies.forEach(({ name, value, options }) => {

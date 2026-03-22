@@ -7,6 +7,11 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EchtWordmark } from "@/components/EchtLogo";
 import { PaymentPendingModal } from "@/components/marketing/PaymentPendingModal";
 import { isOnboardingComplete, type UserProfileMetadata } from "@/lib/user-metadata";
+import {
+  isNoSubscriptionReason,
+  postWhopVerifyAccess,
+} from "@/lib/whop-verify-client";
+import { upsertPublicProfile } from "@/lib/supabase/profiles";
 
 const INPUT_CLASS =
   "h-11 w-full rounded-lg border border-neutral-200 bg-white px-3.5 text-[15px] text-neutral-900 shadow-sm placeholder:text-neutral-400 transition-colors focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-60";
@@ -19,17 +24,6 @@ const STEPS = [
   { key: "role_in_company" as const, title: "Role", description: "Your role on the team." },
   { key: "monthly_references" as const, title: "Monthly volume", description: "References you process per month." },
 ] as const;
-
-/** Reconciles Whop + DB (fixes webhook delay / missing `whop_entitlements` row). */
-async function fetchReconciledWhopAccess(): Promise<boolean> {
-  const res = await fetch("/api/whop/verify-access", {
-    method: "POST",
-    credentials: "include",
-  });
-  if (!res.ok) return false;
-  const body = (await res.json()) as { has_access?: boolean };
-  return body.has_access === true;
-}
 
 const MONTHLY_REFERENCE_OPTIONS: { value: string; label: string }[] = [
   { value: "1-50", label: "1 to 50" },
@@ -69,15 +63,24 @@ export default function OnboardingPage() {
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (isOnboardingComplete(meta)) {
-          const hasAccess = await fetchReconciledWhopAccess();
+          const { hasAccess, reason } = await postWhopVerifyAccess();
           if (cancelled) return;
           if (hasAccess) {
             router.replace("/analyze");
             return;
           }
-          // Do not send to /analyze without access (proxy would send users to marketing + subscribe).
+          if (isNoSubscriptionReason(reason)) {
+            router.replace("/?subscribe=1&needs_plan=1");
+            return;
+          }
           setWaitingForAccess(true);
           setReady(true);
+          return;
+        }
+        const gate = await postWhopVerifyAccess();
+        if (cancelled) return;
+        if (!gate.hasAccess && isNoSubscriptionReason(gate.reason)) {
+          router.replace("/?subscribe=1&needs_plan=1");
           return;
         }
         setEmail(session.user.email ?? "");
@@ -103,7 +106,7 @@ export default function OnboardingPage() {
     const POLL_MS = 1500;
     const tick = async () => {
       if (cancelled) return;
-      if (await fetchReconciledWhopAccess()) {
+      if ((await postWhopVerifyAccess()).hasAccess) {
         router.replace("/analyze");
       }
     };
@@ -159,39 +162,60 @@ export default function OnboardingPage() {
     setError(null);
     try {
       const supabase = createSupabaseBrowserClient();
+      const metaPayload = {
+        full_name: fullName.trim(),
+        phone: phone.trim(),
+        company_name: companyName.trim(),
+        role_in_company: role.trim(),
+        monthly_references: monthlyReferences,
+        onboarding_complete: true,
+      } satisfies UserProfileMetadata;
+
       const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          company_name: companyName.trim(),
-          role_in_company: role.trim(),
-          monthly_references: monthlyReferences,
-          onboarding_complete: true,
-        } satisfies UserProfileMetadata,
+        data: metaPayload,
       });
       if (updateError) {
         setError(updateError.message ?? "Could not save. Try again.");
         return;
       }
 
-      const POLL_MS = 1500;
-      const MAX_POLLS = 28;
-      let hasAccess = false;
-      for (let i = 0; i < MAX_POLLS; i++) {
-        if (await fetchReconciledWhopAccess()) {
-          hasAccess = true;
-          break;
-        }
-        if (i < MAX_POLLS - 1) {
-          await new Promise((r) => setTimeout(r, POLL_MS));
+      const {
+        data: { session: afterSession },
+      } = await supabase.auth.getSession();
+      if (afterSession?.user) {
+        const { error: profileErr } = await upsertPublicProfile(afterSession.user, metaPayload);
+        if (profileErr) {
+          console.error("[profiles] upsert after onboarding:", profileErr);
         }
       }
 
-      if (hasAccess) {
+      const first = await postWhopVerifyAccess();
+      if (first.hasAccess) {
         router.replace("/analyze");
-      } else {
-        router.replace("/?subscribe=1&access_pending=1");
+        return;
       }
+      if (isNoSubscriptionReason(first.reason)) {
+        router.replace("/?subscribe=1&needs_plan=1");
+        return;
+      }
+
+      const POLL_MS = 1500;
+      const MAX_POLLS = 12;
+      for (let i = 0; i < MAX_POLLS; i++) {
+        const r = await postWhopVerifyAccess();
+        if (r.hasAccess) {
+          router.replace("/analyze");
+          return;
+        }
+        if (isNoSubscriptionReason(r.reason)) {
+          router.replace("/?subscribe=1&needs_plan=1");
+          return;
+        }
+        if (i < MAX_POLLS - 1) {
+          await new Promise((res) => setTimeout(res, POLL_MS));
+        }
+      }
+      router.replace("/?subscribe=1&access_pending=1");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {

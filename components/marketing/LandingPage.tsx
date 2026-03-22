@@ -14,6 +14,7 @@ import { ContactUsModal } from "@/components/marketing/ContactUsModal";
 import { FaqModal } from "@/components/marketing/FaqModal";
 import { PricingCheckoutBanner } from "@/components/marketing/PricingCheckoutBanner";
 import { MarketingPaymentPendingGate } from "@/components/marketing/MarketingPaymentPendingGate";
+import { NeedsPlanGate } from "@/components/marketing/NeedsPlanGate";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -38,7 +39,8 @@ export default function LandingPage() {
     const params = new URLSearchParams(window.location.search);
     if (
       params.get("subscribe") === "1" ||
-      params.get("access_pending") === "1"
+      params.get("access_pending") === "1" ||
+      params.get("needs_plan") === "1"
     ) {
       const id = window.setTimeout(() => scrollToId("pricing"), 150);
       return () => window.clearTimeout(id);
@@ -49,6 +51,9 @@ export default function LandingPage() {
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
       <Suspense fallback={null}>
         <PricingCheckoutBanner />
+      </Suspense>
+      <Suspense fallback={null}>
+        <NeedsPlanGate />
       </Suspense>
       <Suspense fallback={null}>
         <MarketingPaymentPendingGate />

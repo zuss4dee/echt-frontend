@@ -1,6 +1,27 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { getWhopHasAccessFromDb } from "@/lib/whop-entitlements";
+import { reconcileWhopEntitlementForEmail } from "@/lib/whop-reconcile";
+
+function needsPlanRedirect(origin: string) {
+  const redirectUrl = new URL("/", origin);
+  redirectUrl.searchParams.set("subscribe", "1");
+  redirectUrl.searchParams.set("needs_plan", "1");
+  return redirectUrl;
+}
+
+async function resolveWhopAccess(
+  supabase: SupabaseClient,
+  email: string | undefined,
+): Promise<boolean> {
+  let hasWhop = await getWhopHasAccessFromDb(supabase, email);
+  if (!hasWhop && email) {
+    await reconcileWhopEntitlementForEmail(email);
+    hasWhop = await getWhopHasAccessFromDb(supabase, email);
+  }
+  return hasWhop;
+}
 
 /**
  * Refreshes Supabase auth cookies on matching routes and protects app routes.
@@ -58,16 +79,27 @@ export async function proxy(request: NextRequest) {
 
   // Signed-in users should not stay on the login page.
   if (pathname === "/login" && user) {
-    const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
+    const hasWhop = await resolveWhopAccess(supabase, user.email);
     const onboardingDone = user.user_metadata?.onboarding_complete === true;
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.searchParams.delete("error");
 
     if (hasWhop && onboardingDone) {
       redirectUrl.pathname = "/analyze";
-    } else {
-      // No Whop row yet (payment webhook pending): never bounce to marketing subscribe from here.
+    } else if (hasWhop && !onboardingDone) {
       redirectUrl.pathname = "/onboarding";
+    } else {
+      const redirectResponse = NextResponse.redirect(
+        needsPlanRedirect(request.nextUrl.origin),
+      );
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(
+          cookie.name,
+          cookie.value,
+          cookie as CookieOptions,
+        );
+      });
+      return redirectResponse;
     }
 
     const redirectResponse = NextResponse.redirect(redirectUrl);
@@ -100,7 +132,24 @@ export async function proxy(request: NextRequest) {
     return redirectResponse;
   }
 
-  // Onboarding is allowed without Whop so paying users can complete profile while the webhook syncs.
+  // Onboarding is only for users with an active Whop subscription (reconcile handles webhook delay).
+  if (isOnboarding && user) {
+    const hasWhop = await resolveWhopAccess(supabase, user.email);
+    if (!hasWhop) {
+      const redirectResponse = NextResponse.redirect(
+        needsPlanRedirect(request.nextUrl.origin),
+      );
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(
+          cookie.name,
+          cookie.value,
+          cookie as CookieOptions,
+        );
+      });
+      return redirectResponse;
+    }
+  }
+
   if (isProtectedApp && user && !isOnboarding) {
     const hasWhop = await getWhopHasAccessFromDb(supabase, user.email);
     if (!hasWhop) {

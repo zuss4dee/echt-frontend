@@ -26,6 +26,7 @@ import {
   isOnboardingComplete,
   type UserProfileMetadata,
 } from "@/lib/user-metadata";
+import { upsertPublicProfile } from "@/lib/supabase/profiles";
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { EchtWordmark } from "@/components/EchtLogo";
 import { useAnalyzeSidebarContent } from "@/contexts/analyze-sidebar-content";
@@ -446,8 +447,13 @@ export default function Home() {
         } = await supabase.auth.getSession();
         if (!session?.user) return;
         const prev = (session.user.user_metadata ?? {}) as UserProfileMetadata;
-        const { error } = await supabase.auth.updateUser({ data: { ...prev, ...patch } });
+        const merged = { ...prev, ...patch } satisfies UserProfileMetadata;
+        const { error } = await supabase.auth.updateUser({ data: merged });
         if (error) throw error;
+        const { error: profileErr } = await upsertPublicProfile(session.user, merged);
+        if (profileErr) {
+          console.error("[profiles] upsert:", profileErr);
+        }
       } catch (e) {
         console.error("Failed to save profile", e);
         addToast("Could not save profile. Try again.", "error");

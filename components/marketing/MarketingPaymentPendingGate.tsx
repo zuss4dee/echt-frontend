@@ -5,16 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { PaymentPendingModal } from "@/components/marketing/PaymentPendingModal";
-
-async function fetchReconciledWhopAccess(): Promise<boolean> {
-  const res = await fetch("/api/whop/verify-access", {
-    method: "POST",
-    credentials: "include",
-  });
-  if (!res.ok) return false;
-  const body = (await res.json()) as { has_access?: boolean };
-  return body.has_access === true;
-}
+import { postWhopVerifyAccess } from "@/lib/whop-verify-client";
 
 const POLL_MS = 1500;
 
@@ -25,12 +16,13 @@ const POLL_MS = 1500;
 export function MarketingPaymentPendingGate() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const needsPlan = searchParams.get("needs_plan") === "1";
   const accessPending = searchParams.get("access_pending") === "1";
   const [hint, setHint] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!accessPending) return;
+    if (needsPlan || !accessPending) return;
 
     let cancelled = false;
 
@@ -52,7 +44,7 @@ export function MarketingPaymentPendingGate() {
 
       const tick = async () => {
         if (cancelled) return;
-        if (await fetchReconciledWhopAccess()) {
+        if ((await postWhopVerifyAccess()).hasAccess) {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
@@ -72,9 +64,9 @@ export function MarketingPaymentPendingGate() {
         intervalRef.current = null;
       }
     };
-  }, [accessPending, router]);
+  }, [needsPlan, accessPending, router]);
 
-  if (!accessPending) return null;
+  if (needsPlan || !accessPending) return null;
 
   return (
     <>
