@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { Instagram, X } from "lucide-react";
+import { Instagram, Menu, X } from "lucide-react";
 import { EchtWordmark } from "@/components/EchtLogo";
 import { LiquidEther } from "@/components/ui/liquid-ether";
 import Silk from "@/components/ui/silk";
@@ -28,6 +28,7 @@ function scrollToId(id: string) {
 export default function LandingPage() {
   const [contactOpen, setContactOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -49,6 +50,16 @@ export default function LandingPage() {
       const id = window.setTimeout(() => scrollToId("pricing"), 150);
       return () => window.clearTimeout(id);
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => {
+      if (mq.matches) setMobileNavOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   return (
@@ -79,8 +90,8 @@ export default function LandingPage() {
           />
 
           <div className="relative z-10 flex min-h-svh flex-col">
-            <div className="mx-auto w-full max-w-5xl px-3 pt-4 sm:px-6 sm:pt-6">
-              <header className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3 rounded-full border border-white/20 bg-white/10 px-3 py-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl sm:gap-3 sm:px-6 sm:py-3">
+            <div className="relative mx-auto w-full max-w-5xl px-3 pt-4 sm:px-6 sm:pt-6">
+              <header className="flex items-center justify-between gap-x-2 rounded-full border border-white/20 bg-white/10 px-3 py-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl sm:gap-3 sm:px-6 sm:py-3">
                 <div className="flex min-w-0 shrink-0 items-center gap-2">
                   <Link
                     href="/"
@@ -90,24 +101,27 @@ export default function LandingPage() {
                     <EchtWordmark className="h-6 w-auto shrink-0 text-white sm:h-8" />
                   </Link>
                 </div>
-                <nav className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2 text-xs font-medium text-white/85 sm:flex-none sm:gap-6 sm:text-[13px] md:gap-8">
+                <nav
+                  className="hidden min-w-0 flex-1 items-center justify-end gap-x-3 gap-y-2 text-xs font-medium text-white/85 md:flex md:gap-6 md:text-[13px] lg:gap-8"
+                  aria-label="Primary"
+                >
                   <button
                     type="button"
-                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
+                    className="shrink-0 py-1 transition-colors hover:text-white"
                     onClick={() => scrollToId("security")}
                   >
                     Security
                   </button>
                   <button
                     type="button"
-                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
+                    className="shrink-0 py-1 transition-colors hover:text-white"
                     onClick={() => setFaqOpen(true)}
                   >
                     FAQ
                   </button>
                   <button
                     type="button"
-                    className="shrink-0 py-1 transition-colors hover:text-white sm:py-0"
+                    className="shrink-0 py-1 transition-colors hover:text-white"
                     onClick={() => setContactOpen(true)}
                   >
                     Contact us
@@ -121,23 +135,104 @@ export default function LandingPage() {
                       href={echtSocialLinks.x}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 sm:h-8 sm:w-8"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
                       aria-label="X"
                     >
-                      <X className="h-3.5 w-3.5 sm:h-3.5" />
+                      <X className="h-3.5 w-3.5" />
                     </a>
                     <a
                       href={echtSocialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 sm:h-8 sm:w-8"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
                       aria-label="Instagram"
                     >
                       <Instagram className="h-3.5 w-3.5" />
                     </a>
                   </div>
                 </nav>
+                <button
+                  type="button"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition-colors hover:bg-white/15 md:hidden"
+                  aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+                  aria-expanded={mobileNavOpen}
+                  onClick={() => setMobileNavOpen((o) => !o)}
+                >
+                  {mobileNavOpen ? (
+                    <X className="h-5 w-5" aria-hidden />
+                  ) : (
+                    <Menu className="h-5 w-5" aria-hidden />
+                  )}
+                </button>
               </header>
+              {mobileNavOpen ? (
+                <div
+                  className="absolute left-0 right-0 top-full z-[200] mt-2 rounded-2xl border border-white/20 bg-black/55 p-4 shadow-2xl backdrop-blur-xl md:hidden"
+                  id="mobile-marketing-nav"
+                  role="dialog"
+                  aria-label="Menu"
+                >
+                  <nav className="flex flex-col gap-1 text-[15px] font-medium text-white/90" aria-label="Mobile primary">
+                    <button
+                      type="button"
+                      className="rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/10"
+                      onClick={() => {
+                        scrollToId("security");
+                        setMobileNavOpen(false);
+                      }}
+                    >
+                      Security
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/10"
+                      onClick={() => {
+                        setFaqOpen(true);
+                        setMobileNavOpen(false);
+                      }}
+                    >
+                      FAQ
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl px-3 py-3 text-left transition-colors hover:bg-white/10"
+                      onClick={() => {
+                        setContactOpen(true);
+                        setMobileNavOpen(false);
+                      }}
+                    >
+                      Contact us
+                    </button>
+                    <div className="px-3 py-2">
+                      <Suspense fallback={<MarketingLoginNavLinkFallback onNavigate={() => setMobileNavOpen(false)} />}>
+                        <MarketingLoginNavLink onNavigate={() => setMobileNavOpen(false)} />
+                      </Suspense>
+                    </div>
+                    <div className="mt-2 flex items-center justify-center gap-4 border-t border-white/15 pt-4">
+                      <a
+                        href={echtSocialLinks.x}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+                        aria-label="X"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </a>
+                      <a
+                        href={echtSocialLinks.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+                        aria-label="Instagram"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        <Instagram className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </nav>
+                </div>
+              ) : null}
             </div>
 
             <div className="flex flex-1 flex-col items-center justify-center px-3 pb-12 pt-8 sm:px-4 sm:pb-24 sm:pt-14">
