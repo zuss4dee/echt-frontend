@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EchtWordmark } from "@/components/EchtLogo";
@@ -11,12 +12,17 @@ type MagicLinkLoginFormProps = {
   callbackError?: boolean;
   /** After Whop checkout, user lands on `/login?checkout=success`. */
   checkoutSuccess?: boolean;
+  /** From marketing: sign out first so the user can enter the correct checkout email. */
+  switchAccount?: boolean;
 };
 
 export function MagicLinkLoginForm({
   callbackError = false,
   checkoutSuccess = false,
+  switchAccount = false,
 }: MagicLinkLoginFormProps) {
+  const router = useRouter();
+  const [switchingAccount, setSwitchingAccount] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
@@ -120,6 +126,11 @@ export function MagicLinkLoginForm({
             <label htmlFor="email" className="sr-only">
               Email
             </label>
+            {switchingAccount ? (
+              <p className="mb-2 text-left text-[13px] text-neutral-500" role="status">
+                Switching account…
+              </p>
+            ) : null}
             {checkoutSuccess ? (
               <p
                 id="checkout-email-hint"
@@ -138,7 +149,7 @@ export function MagicLinkLoginForm({
               aria-describedby={checkoutSuccess ? "checkout-email-hint" : undefined}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
+              disabled={loading || switchingAccount}
               className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3.5 text-[15px] text-neutral-900 shadow-sm placeholder:text-neutral-400 transition-colors focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-60"
             />
             {error ? (
@@ -149,10 +160,10 @@ export function MagicLinkLoginForm({
           </div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || switchingAccount}
             className="h-11 w-full rounded-lg bg-neutral-900 py-2.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Sending…" : "Sign In with Email"}
+            {loading ? "Sending…" : switchingAccount ? "Please wait…" : "Sign In with Email"}
           </button>
         </form>
       )}

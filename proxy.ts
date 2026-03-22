@@ -77,29 +77,23 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/analyze/") ||
     isOnboarding;
 
-  // Signed-in users should not stay on the login page.
+  // Signed-in users with Whop should not stay on the login page.
+  // If they have no Whop access, allow /login so they can request a magic link
+  // for another email (otherwise redirecting to needs_plan makes the link "do nothing").
   if (pathname === "/login" && user) {
     const hasWhop = await resolveWhopAccess(supabase, user.email);
     const onboardingDone = user.user_metadata?.onboarding_complete === true;
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.searchParams.delete("error");
 
+    if (!hasWhop) {
+      return supabaseResponse;
+    }
+
     if (hasWhop && onboardingDone) {
       redirectUrl.pathname = "/analyze";
     } else if (hasWhop && !onboardingDone) {
       redirectUrl.pathname = "/onboarding";
-    } else {
-      const redirectResponse = NextResponse.redirect(
-        needsPlanRedirect(request.nextUrl.origin),
-      );
-      supabaseResponse.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(
-          cookie.name,
-          cookie.value,
-          cookie as CookieOptions,
-        );
-      });
-      return redirectResponse;
     }
 
     const redirectResponse = NextResponse.redirect(redirectUrl);

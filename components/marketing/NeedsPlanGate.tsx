@@ -63,7 +63,7 @@ export function NeedsPlanGate() {
             View plans
           </button>
           <Link
-            href="/login"
+            href="/login?switch_account=1"
             className="inline-flex items-center justify-center rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50"
           >
             Sign in

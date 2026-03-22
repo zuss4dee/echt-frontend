@@ -15,6 +15,10 @@ import { FaqModal } from "@/components/marketing/FaqModal";
 import { PricingCheckoutBanner } from "@/components/marketing/PricingCheckoutBanner";
 import { MarketingPaymentPendingGate } from "@/components/marketing/MarketingPaymentPendingGate";
 import { NeedsPlanGate } from "@/components/marketing/NeedsPlanGate";
+import {
+  MarketingLoginNavLink,
+  MarketingLoginNavLinkFallback,
+} from "@/components/marketing/MarketingLoginNavLink";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -108,12 +112,9 @@ export default function LandingPage() {
                   >
                     Contact us
                   </button>
-                  <Link
-                    href="/login"
-                    className="shrink-0 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/15 sm:py-1 sm:text-[13px] sm:normal-case sm:tracking-normal"
-                  >
-                    Log in
-                  </Link>
+                  <Suspense fallback={<MarketingLoginNavLinkFallback />}>
+                    <MarketingLoginNavLink />
+                  </Suspense>
                   <div className="hidden h-4 w-px shrink-0 bg-white/25 md:block" aria-hidden />
                   <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
                     <a
