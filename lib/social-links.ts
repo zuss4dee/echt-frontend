@@ -1,6 +1,6 @@
-/** Production URLs for Echt brand profiles (nav + footer). Update when handles are live. */
+/** Production URLs for Echt brand profiles (nav + footer). */
 export const echtSocialLinks = {
-  x: "https://x.com/echtai",
-  linkedin: "https://www.linkedin.com/company/echtai",
-  instagram: "https://www.instagram.com/echtai",
+  x: "https://x.com/useecht?s=21",
+  instagram:
+    "https://www.instagram.com/useecht?igsh=MWh4ZDRxdzlscDRpdA%3D%3D&utm_source=qr",
 } as const;

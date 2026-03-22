@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { Instagram, Linkedin, X } from "lucide-react";
+import { Instagram, X } from "lucide-react";
 import { EchtWordmark } from "@/components/EchtLogo";
 import { LiquidEther } from "@/components/ui/liquid-ether";
 import Silk from "@/components/ui/silk";
@@ -121,15 +121,6 @@ export default function LandingPage() {
                       <X className="h-3.5 w-3.5 sm:h-3.5" />
                     </a>
                     <a
-                      href={echtSocialLinks.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 sm:h-8 sm:w-8"
-                      aria-label="LinkedIn"
-                    >
-                      <Linkedin className="h-3.5 w-3.5" />
-                    </a>
-                    <a
                       href={echtSocialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -212,7 +203,7 @@ export default function LandingPage() {
 
         <BouncyCardsFeatures onRunFreeScan={() => scrollToId("pricing")} />
 
-        <PricingSection />
+        <PricingSection onContactClick={() => setContactOpen(true)} />
 
         {/* Final CTA */}
         <section className="w-full bg-black py-12 sm:py-24">
@@ -348,15 +339,6 @@ export default function LandingPage() {
                   aria-label="Echt on X"
                 >
                   <X className="h-4 w-4" />
-                </a>
-                <a
-                  href={echtSocialLinks.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:bg-white/10"
-                  aria-label="Echt on LinkedIn"
-                >
-                  <Linkedin className="h-4 w-4" />
                 </a>
                 <a
                   href={echtSocialLinks.instagram}

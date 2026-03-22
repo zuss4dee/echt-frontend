@@ -13,7 +13,6 @@ import {
   type PricingCardConfig,
 } from "@/lib/pricing-plans";
 import { cn } from "@/lib/utils";
-import { getWhopSupportChatUrl } from "@/lib/whop-experience-urls";
 
 const accent = {
   text: "text-red-600",
@@ -177,12 +176,12 @@ function PlanCard({
 
 type PricingSectionProps = {
   className?: string;
+  /** Opens the email Contact us modal (e.g. on the marketing home). */
+  onContactClick?: () => void;
 };
 
-export function PricingSection({ className }: PricingSectionProps) {
+export function PricingSection({ className, onContactClick }: PricingSectionProps) {
   const [annual, setAnnual] = useState(false);
-  const supportContactHref = getWhopSupportChatUrl() || "/contact";
-  const supportContactExternal = supportContactHref.startsWith("http");
 
   const trial = getTrialCard();
   const quarterly = getQuarterlyCard();
@@ -286,17 +285,19 @@ export function PricingSection({ className }: PricingSectionProps) {
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-zinc-500">
           Prices exclude VAT where applicable.{" "}
-          {supportContactExternal ? (
-            <a
-              href={supportContactHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-zinc-700 underline underline-offset-2"
+          {onContactClick ? (
+            <button
+              type="button"
+              onClick={onContactClick}
+              className="font-medium text-zinc-700 underline underline-offset-2 transition hover:text-zinc-900"
             >
               Contact us
-            </a>
+            </button>
           ) : (
-            <Link href={supportContactHref} className="font-medium text-zinc-700 underline underline-offset-2">
+            <Link
+              href="/contact"
+              className="font-medium text-zinc-700 underline underline-offset-2 transition hover:text-zinc-900"
+            >
               Contact us
             </Link>
           )}{" "}
