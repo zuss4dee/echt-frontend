@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono, Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
         className={`${inter.className} ${inter.variable} ${geistMono.variable} relative min-h-dvh bg-white antialiased text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50`}
       >
         <div className="relative z-[1]">{children}</div>
+        <Analytics />
       </body>
     </html>
   );
