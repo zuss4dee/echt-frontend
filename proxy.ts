@@ -63,15 +63,11 @@ export async function proxy(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.searchParams.delete("error");
 
-    if (!hasWhop) {
-      if (!onboardingDone) {
-        redirectUrl.pathname = "/onboarding";
-      } else {
-        redirectUrl.pathname = "/pricing";
-        redirectUrl.searchParams.set("subscribe", "1");
-      }
+    if (hasWhop && onboardingDone) {
+      redirectUrl.pathname = "/analyze";
     } else {
-      redirectUrl.pathname = onboardingDone ? "/analyze" : "/onboarding";
+      // No Whop row yet (payment webhook pending): never bounce to /pricing from here.
+      redirectUrl.pathname = "/onboarding";
     }
 
     const redirectResponse = NextResponse.redirect(redirectUrl);

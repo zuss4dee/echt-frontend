@@ -51,8 +51,9 @@ If a plan has **no trial period** in Whop, it will always charge (or authorize) 
 
 ## Supabase Auth redirect URLs
 
-- Magic links and OAuth still use **`/auth/callback`** — that path must stay in the Supabase **Redirect URL allow list** (e.g. `https://www.useecht.com/auth/callback`).
-- Landing on **`/login?checkout=success`** after Whop does **not** need to be allowlisted **unless** you pass `/login` as Supabase `redirectTo` for email links. The app’s normal flow is: Whop → your site `/login` → user requests magic link → Supabase → `/auth/callback` → app.
+- Magic links and OAuth still use **`/auth/callback`**. That path must stay in the Supabase **Redirect URL allow list** (e.g. `https://www.useecht.com/auth/callback`).
+- After **`/auth/callback`**, users go to **`/analyze`** only when **`has_access`** and **`onboarding_complete`**. Otherwise they always go to **`/onboarding`** (never `/pricing`). The onboarding page checks access before redirecting to Analyze; if your profile is already complete but Whop has not synced yet, you stay on a short “Almost there” screen instead of bouncing to pricing.
+- **`/login?checkout=success`** after Whop does not need to be in Supabase redirect allow list unless you use it as `redirectTo`. Normal flow: Whop → `/login?checkout=success` → magic link → `/auth/callback` → onboarding or analyze.
 
 ## Database
 

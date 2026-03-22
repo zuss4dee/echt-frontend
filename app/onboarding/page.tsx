@@ -39,6 +39,8 @@ export default function OnboardingPage() {
   const [monthlyReferences, setMonthlyReferences] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Profile saved but Whop row not ready yet (same as after payment). */
+  const [waitingForAccess, setWaitingForAccess] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,7 +57,16 @@ export default function OnboardingPage() {
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (isOnboardingComplete(meta)) {
-          router.replace("/analyze");
+          const res = await fetch("/api/whop/access-status", { credentials: "include" });
+          const body = res.ok ? ((await res.json()) as { hasAccess?: boolean }) : { hasAccess: false };
+          if (cancelled) return;
+          if (body.hasAccess === true) {
+            router.replace("/analyze");
+            return;
+          }
+          // Do not send to /analyze without access (proxy would send users to pricing).
+          setWaitingForAccess(true);
+          setReady(true);
           return;
         }
         setEmail(session.user.email ?? "");
@@ -74,6 +85,26 @@ export default function OnboardingPage() {
       cancelled = true;
     };
   }, [router]);
+
+  useEffect(() => {
+    if (!waitingForAccess || !ready) return;
+    let cancelled = false;
+    const POLL_MS = 1500;
+    const tick = async () => {
+      const res = await fetch("/api/whop/access-status", { credentials: "include" });
+      if (cancelled || !res.ok) return;
+      const body = (await res.json()) as { hasAccess?: boolean };
+      if (body.hasAccess === true) {
+        router.replace("/analyze");
+      }
+    };
+    void tick();
+    const id = setInterval(() => void tick(), POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [waitingForAccess, ready, router]);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -167,6 +198,33 @@ export default function OnboardingPage() {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-white px-4">
         <p className="text-sm text-neutral-500">Loading…</p>
+      </main>
+    );
+  }
+
+  if (waitingForAccess) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-4 py-16">
+        <div className="w-full max-w-[400px] text-center">
+          <div className="mb-8 flex justify-center">
+            <Link
+              href="/"
+              className="inline-block rounded-md outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-neutral-900/20"
+              aria-label="Echt home"
+            >
+              <EchtWordmark className="block h-9 w-auto text-neutral-900 sm:h-10" />
+            </Link>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-[2rem]">
+            Almost there
+          </h1>
+          <p className="mt-4 text-[15px] leading-relaxed text-neutral-600">
+            Your profile is saved. We are confirming your Whop subscription in the background.
+            This page will open Analyze as soon as it is ready. Use the same email you used at
+            checkout.
+          </p>
+          <p className="mt-6 text-sm text-neutral-400">Checking access…</p>
+        </div>
       </main>
     );
   }

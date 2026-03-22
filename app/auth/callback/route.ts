@@ -69,20 +69,17 @@ export async function GET(request: Request) {
     // Only treat explicit true as done — Boolean("false") is true; missing key must mean onboarding.
     const onboardingDone = user?.user_metadata?.onboarding_complete === true;
 
-    // If Whop has not synced yet (webhook delay), still send new users to onboarding, not pricing.
+    // Never send users to /pricing from here when Whop has not synced yet (webhook delay after
+    // payment). Always land on onboarding until has_access is true; onboarding checks access
+    // before sending anyone to /analyze.
     let nextPath: string;
-    if (hasWhop) {
-      nextPath = onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH;
-    } else if (onboardingDone) {
-      nextPath = "/pricing";
+    if (hasWhop && onboardingDone) {
+      nextPath = ANALYZE_PATH;
     } else {
       nextPath = ONBOARDING_PATH;
     }
 
     const redirectUrl = new URL(nextPath, origin);
-    if (!hasWhop && onboardingDone) {
-      redirectUrl.searchParams.set("subscribe", "1");
-    }
 
     const response = NextResponse.redirect(redirectUrl);
     sessionCookies.forEach(({ name, value, options }) => {
