@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EchtWordmark } from "@/components/EchtLogo";
+import { PaymentPendingModal } from "@/components/marketing/PaymentPendingModal";
 import { isOnboardingComplete, type UserProfileMetadata } from "@/lib/user-metadata";
 
 const INPUT_CLASS =
@@ -208,25 +209,8 @@ export default function OnboardingPage() {
 
   if (waitingForAccess) {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-4 py-16">
-        <div className="w-full max-w-[400px] text-center">
-          <div className="mb-8 flex justify-center">
-            <Link
-              href="/"
-              className="inline-block rounded-md outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-neutral-900/20"
-              aria-label="Echt home"
-            >
-              <EchtWordmark className="block h-9 w-auto text-neutral-900 sm:h-10" />
-            </Link>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-[2rem]">
-            Almost there
-          </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-neutral-600">
-            Confirming your subscription. Echt AI will open here when ready.
-          </p>
-          <p className="mt-6 text-sm text-neutral-400">Checking access…</p>
-        </div>
+      <main className="min-h-dvh bg-white">
+        <PaymentPendingModal open />
       </main>
     );
   }

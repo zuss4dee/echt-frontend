@@ -13,6 +13,7 @@ import { RoiCalculator } from "@/components/marketing/RoiCalculator";
 import { ContactUsModal } from "@/components/marketing/ContactUsModal";
 import { FaqModal } from "@/components/marketing/FaqModal";
 import { PricingCheckoutBanner } from "@/components/marketing/PricingCheckoutBanner";
+import { MarketingPaymentPendingGate } from "@/components/marketing/MarketingPaymentPendingGate";
 import { echtSocialLinks } from "@/lib/social-links";
 
 function scrollToId(id: string) {
@@ -48,6 +49,9 @@ export default function LandingPage() {
     <main className="relative min-h-screen overflow-x-hidden bg-transparent text-slate-900">
       <Suspense fallback={null}>
         <PricingCheckoutBanner />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MarketingPaymentPendingGate />
       </Suspense>
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col pb-12">
