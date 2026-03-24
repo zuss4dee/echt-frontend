@@ -269,6 +269,72 @@ export function PricingSection({ className, onContactClick }: PricingSectionProp
           </p>
         </div>
 
+        {!annual ? (
+          <div
+            className="relative mx-auto mt-10 max-w-5xl overflow-hidden rounded-2xl border-2 border-amber-400/70 bg-gradient-to-br from-amber-100/90 via-orange-50/80 to-zinc-50 p-6 shadow-[0_12px_48px_-8px_rgba(180,83,9,0.28)] ring-1 ring-amber-300/50 sm:p-8"
+            role="region"
+            aria-label="Limited time founding partner offer"
+          >
+            <div
+              className="pointer-events-none absolute -left-12 top-1/2 h-48 w-48 -translate-y-1/2 rounded-full bg-amber-300/25 blur-3xl"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-orange-400/20 blur-2xl"
+              aria-hidden
+            />
+            <div className="relative">
+              <p className="text-center text-base font-bold leading-snug tracking-tight text-zinc-950 sm:text-lg">
+                <span className="mr-1.5 inline-block sm:mr-2" aria-hidden>
+                  ⚡
+                </span>
+                Limited Time: Independent Agency Founding Partner Offer
+              </p>
+              <p className="mx-auto mt-5 max-w-3xl text-pretty text-center text-sm leading-relaxed text-zinc-800 sm:text-[15px]">
+                Echt retails at £249 per month for enterprise operators. However, we are currently
+                onboarding three local independent agencies as Founding Partners to fine tune our
+                workflow.
+              </p>
+              <div className="mx-auto mt-6 max-w-md">
+                <div className="overflow-hidden rounded-2xl border-2 border-zinc-800 bg-white shadow-xl shadow-zinc-900/10 ring-1 ring-zinc-900/5">
+                  <div className="bg-zinc-900 py-2.5 text-center">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
+                      The Offer
+                    </p>
+                  </div>
+                  <div className="px-6 pb-6 pt-5 sm:px-8 sm:pb-8 sm:pt-6">
+                    <div className="text-center">
+                      <p className="flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0">
+                        <span className="font-serif text-4xl font-semibold tracking-tight text-zinc-900 sm:text-[2.75rem]">
+                          £100
+                        </span>
+                        <span className="text-sm font-medium text-zinc-500 sm:text-base">
+                          per month for life
+                        </span>
+                      </p>
+                      <p className="mx-auto mt-4 max-w-sm text-pretty text-sm leading-relaxed text-zinc-700">
+                        Claim one of the 3 spots to lock in unlimited forensic scans.
+                      </p>
+                    </div>
+                    <div className="mx-auto mt-5 max-w-sm border-t border-zinc-200" />
+                    <p className="mx-auto mt-5 max-w-sm text-center text-sm font-medium leading-relaxed text-zinc-800">
+                      Grandfathered in. You will never pay the £249 rate.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mx-auto mt-5 max-w-3xl rounded-xl border border-zinc-200/80 bg-zinc-900/[0.03] p-5 sm:p-6">
+                <p className="text-sm leading-relaxed text-zinc-800 sm:text-[15px]">
+                  <span className="font-semibold text-zinc-950">The Risk Reversal Guarantee: </span>
+                  Run your most suspicious applicant files through Echt during your 7 day trial. If we
+                  do not instantly give you 100% clarity on whether those documents are fabricated,
+                  cancel immediately. You will not pay a single penny.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {annual ? (
           <div className="mt-8 flex justify-center">
             <div className="w-full max-w-md">
@@ -282,6 +348,21 @@ export function PricingSection({ className, onContactClick }: PricingSectionProp
             <PlanCard plan={quarterly} />
           </div>
         )}
+
+        <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-zinc-200 bg-gradient-to-b from-zinc-50 to-white px-6 py-6 text-center shadow-sm sm:px-8">
+          <p className="text-base font-semibold text-zinc-900">Building a custom workflow?</p>
+          <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+            We offer full API and webhook access for Enterprise teams. Connect Echt directly to your
+            existing systems.{" "}
+            <Link
+              href="/contact"
+              className="font-medium text-zinc-800 underline underline-offset-2 transition hover:text-zinc-950"
+            >
+              Contact our team
+            </Link>{" "}
+            for custom integration pricing and volume limits.
+          </p>
+        </div>
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-zinc-500">
           Prices exclude VAT where applicable.{" "}

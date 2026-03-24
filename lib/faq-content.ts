@@ -16,4 +16,9 @@ export const ECHT_FAQ_ITEMS: FaqItem[] = [
     answer:
       "Typically under a few seconds per document, so your queue keeps moving.",
   },
+  {
+    question: "Can we integrate Echt with our CRM?",
+    answer:
+      "Yes. We offer full API access and webhooks so your engineering team can connect Echt directly to your own software stack. Contact our sales team to discuss integration setups and Enterprise volume limits.",
+  },
 ];

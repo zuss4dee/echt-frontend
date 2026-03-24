@@ -241,18 +241,17 @@ export default function LandingPage() {
                   className="h-1 w-8 rounded-full bg-gradient-to-r from-violet-400 via-white to-cyan-300 opacity-90"
                   aria-hidden
                 />
-                <span>Forensic pipeline</span>
+                <span>AI forensic pipeline · UK referencing</span>
               </div>
 
-              <h1 className="mt-6 max-w-4xl text-balance px-1 text-center text-[clamp(1.85rem,6.5vw,2.5rem)] font-semibold leading-[1.08] tracking-tight text-white sm:mt-8 sm:px-0 sm:text-6xl md:text-7xl">
-                Prove the truth
-                <br />
-                behind every document.
+              <h1 className="mt-6 max-w-[min(100%,42rem)] text-balance px-1 text-center text-[clamp(1.5rem,5.5vw,2.75rem)] font-semibold leading-[1.12] tracking-tight text-white sm:mt-8 sm:px-0 sm:text-5xl md:text-6xl lg:text-[3.25rem]">
+                Stop Guessing if Applicants are Lying
               </h1>
 
-              <p className="mx-auto mt-5 max-w-lg text-balance px-1 text-center text-[15px] leading-relaxed text-white/75 sm:mt-6 sm:px-0 sm:text-base">
-                The forensic layer for tenant referencing. Deep scans on payslips, bank
-                statements, and IDs so you catch tampering before approvals.
+              <p className="mx-auto mt-5 max-w-2xl text-balance px-1 text-center text-[15px] leading-relaxed text-white/80 sm:mt-6 sm:px-0 sm:text-base">
+                Upload a payslip, bank statement, or ID. Echt hands your referencing team the exact
+                metadata and tamper signals needed to catch fraud instantly. Get a crystal clear
+                outcome to approve real tenants and reject scammers with absolute certainty.
               </p>
 
               <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:w-auto sm:flex-row sm:items-center sm:gap-4">
@@ -260,9 +259,9 @@ export default function LandingPage() {
                 <InteractiveHoverButton
                   type="button"
                   onClick={() => scrollToId("pricing")}
-                  className="w-full justify-center rounded-full border-0 !bg-white px-6 py-3 !text-slate-900 shadow-lg transition-colors hover:!bg-black hover:!text-white group-hover:!text-white hover:shadow-md sm:w-auto sm:min-w-[180px] sm:px-8"
+                  className="w-full justify-center rounded-full border-0 !bg-white px-6 py-3 !text-slate-900 shadow-lg transition-colors hover:!bg-black hover:!text-white group-hover:!text-white hover:shadow-md sm:w-auto sm:min-w-[280px] sm:px-8"
                 >
-                  Run a Free Scan
+                  Test a Suspicious Document Now
                 </InteractiveHoverButton>
                 <button
                   type="button"
@@ -272,6 +271,11 @@ export default function LandingPage() {
                   How Echt works
                 </button>
               </div>
+
+              <p className="mx-auto mt-6 max-w-[min(100%,36rem)] text-balance px-2 text-center text-[12px] leading-relaxed text-white/65 sm:mt-7 sm:text-[13px]">
+                Powered by the core forensic technology used to catch £50,000+ in referencing fraud
+                for one of the UK&apos;s largest property operators.
+              </p>
             </div>
 
             <div className="relative z-10 border-t border-white/10 bg-black/20 px-3 py-6 backdrop-blur-md sm:px-8 sm:py-8">
@@ -351,9 +355,9 @@ export default function LandingPage() {
                     <InteractiveHoverButton
                       type="button"
                       onClick={() => scrollToId("pricing")}
-                      className="w-full justify-center border-white/10 !bg-white !text-zinc-900 transition-colors hover:!bg-slate-900 hover:!text-white group-hover:!text-white sm:w-auto"
+                      className="w-full justify-center border-white/10 !bg-white !text-zinc-900 transition-colors hover:!bg-slate-900 hover:!text-white group-hover:!text-white sm:w-auto sm:min-w-[280px]"
                     >
-                      Run a Free Scan
+                      Test a Suspicious Document Now
                     </InteractiveHoverButton>
                     <button
                       type="button"

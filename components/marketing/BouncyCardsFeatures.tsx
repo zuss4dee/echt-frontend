@@ -13,45 +13,42 @@ type BouncyCardsFeaturesProps = {
 
 export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps) {
   return (
-    <section id="how-echt-works" className="scroll-mt-24 bg-white">
+    <section
+      id="how-echt-works"
+      className="scroll-mt-24 bg-white"
+      aria-labelledby="how-echt-works-heading"
+    >
       <div className="mx-auto max-w-7xl px-3 py-14 text-slate-800 sm:px-4 sm:py-20">
-        <div className="mb-10 flex flex-col items-stretch justify-between gap-4 md:mb-12 md:flex-row md:items-end md:px-8">
-          <div className="max-w-2xl">
-            <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-              Forensic checks for every tenancy,{" "}
-              <span className="text-slate-600">in one place</span>
-            </h2>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-slate-600 sm:text-base">
-              Echt is a document verification app for referencing teams: upload payslips, bank
-              statements, or IDs and get structured evidence—metadata, tamper signals, and a clear
-              outcome—so you can approve or challenge with confidence.
-            </p>
-          </div>
+        <div className="mb-10 flex flex-col items-stretch justify-end gap-4 md:mb-12 md:flex-row md:items-end md:px-8">
+          <h2 id="how-echt-works-heading" className="sr-only">
+            How Echt works
+          </h2>
           <InteractiveHoverButton
             type="button"
             onClick={onRunFreeScan}
-            className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 !text-white shadow-xl transition-colors hover:bg-slate-800 hover:!text-white sm:w-auto sm:whitespace-nowrap"
+            className="w-full shrink-0 justify-center border-slate-900/15 bg-slate-900 !text-white shadow-xl transition-colors hover:bg-slate-800 hover:!text-white sm:ml-auto sm:w-auto sm:whitespace-nowrap"
           >
-            Run a Free Scan
+            Test a Suspicious Document Now
           </InteractiveHoverButton>
         </div>
 
         <div className="mb-4 grid grid-cols-12 gap-4">
           <BounceCard className="col-span-12 md:col-span-4">
-            <CardTitle>File DNA &amp; metadata</CardTitle>
+            <CardTitle>File DNA and Metadata</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-violet-500 to-indigo-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-indigo-50">
-                See creation times, export history, and structure before you trust what&apos;s on
-                screen—so edited or re-saved files don&apos;t slip through as originals.
+                Never trust a screen again. We reveal the exact creation time, export history, and
+                file structure. If an applicant edited or re saved a document to fake their income,
+                you will know immediately.
               </span>
             </div>
           </BounceCard>
           <BounceCard className="col-span-12 md:col-span-8">
-            <CardTitle>Pixel-level forgery detection</CardTitle>
+            <CardTitle>Pixel Level Forgery Detection</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-orange-50">
-                Heatmaps highlight regions that may have been changed—so your team reviews
-                tampering with context, not a vague “AI probability.”
+                No more vague AI probabilities. Our visual heatmaps highlight the exact pixels a
+                fraudster altered. Your team sees the manipulation with perfect clarity.
               </span>
             </div>
           </BounceCard>
@@ -59,20 +56,36 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
 
         <div className="grid grid-cols-12 gap-4">
           <BounceCard className="col-span-12 md:col-span-8">
-            <CardTitle>Verdicts teams can defend</CardTitle>
+            <CardTitle>Verdicts You Can Defend</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-emerald-50">
-                RED, AMBER, or GREEN with plain-English reasons—evidence you can stand behind in
-                audits, disputes, and file notes.
+                Get an instant RED, AMBER, or GREEN result backed by plain English reasons. You get
+                rock solid evidence to stand behind during disputes, audits, and landlord updates.
               </span>
             </div>
           </BounceCard>
           <BounceCard className="col-span-12 md:col-span-4">
-            <CardTitle>AI narrative signals</CardTitle>
+            <CardTitle>AI Narrative Signals</CardTitle>
             <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-purple-500 to-[#4B00E0] p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
               <span className="block text-center text-sm font-semibold leading-snug text-purple-50">
-                Surfaces weak or inconsistent wording next to the forensic readout—so reviewers know
-                what to ask before they sign off.
+                We catch the subtle lies. Echt flags weak or inconsistent wording right next to the
+                forensic readout. Your reviewers will know exactly what questions to ask before they
+                ever sign a lease.
+              </span>
+            </div>
+          </BounceCard>
+        </div>
+
+        <div className="mt-4 grid grid-cols-12 gap-4">
+          <BounceCard className="col-span-12">
+            <CardTitle className="max-w-[min(100%,22ch)] sm:max-w-[20ch]">
+              Automate With Our API
+            </CardTitle>
+            <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-slate-600 to-sky-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
+              <span className="block text-center text-sm font-semibold leading-snug text-sky-50">
+                Stop wasting time on manual data entry. Connect Echt directly to your CRM or custom
+                software. Send an applicant file via our API and get a structured forensic verdict
+                back instantly. Completely automated fraud defense.
               </span>
             </div>
           </BounceCard>
@@ -103,9 +116,20 @@ function BounceCard({
   );
 }
 
-function CardTitle({ children }: { children: ReactNode }) {
+function CardTitle({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <h3 className="relative z-10 mx-auto max-w-[16ch] text-center text-xl font-semibold tracking-tight text-slate-900 sm:max-w-[14ch] sm:text-2xl md:text-3xl">
+    <h3
+      className={cn(
+        "relative z-10 mx-auto max-w-[16ch] text-center text-xl font-semibold tracking-tight text-slate-900 sm:max-w-[14ch] sm:text-2xl md:text-3xl",
+        className,
+      )}
+    >
       {children}
     </h3>
   );
