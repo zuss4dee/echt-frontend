@@ -77,12 +77,17 @@ export function BouncyCardsFeatures({ onRunFreeScan }: BouncyCardsFeaturesProps)
         </div>
 
         <div className="mt-4 grid grid-cols-12 gap-4">
-          <BounceCard className="col-span-12">
-            <CardTitle className="max-w-[min(100%,22ch)] sm:max-w-[20ch]">
+          <BounceCard className="col-span-12 min-h-[280px] border-violet-300/50 bg-gradient-to-br from-violet-50/95 via-white to-slate-50 shadow-md ring-1 ring-violet-200/60 sm:min-h-[320px]">
+            <div className="relative z-10 mb-3 flex justify-center">
+              <span className="inline-flex items-center rounded-full border border-violet-200 bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-800 shadow-sm backdrop-blur-sm">
+                API & webhooks
+              </span>
+            </div>
+            <CardTitle className="max-w-[min(100%,24ch)] text-violet-950 sm:max-w-[22ch]">
               Automate With Our API
             </CardTitle>
-            <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-3 rounded-t-2xl bg-gradient-to-br from-slate-600 to-sky-600 p-4 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg]">
-              <span className="block text-center text-sm font-semibold leading-snug text-sky-50">
+            <div className="absolute bottom-0 left-4 right-4 top-[8.5rem] translate-y-3 rounded-t-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-800 p-4 shadow-inner shadow-violet-950/20 transition-transform duration-[250ms] group-hover:translate-y-1 group-hover:rotate-[2deg] sm:top-36">
+              <span className="block text-center text-sm font-semibold leading-snug text-white/95">
                 Stop wasting time on manual data entry. Connect Echt directly to your CRM or custom
                 software. Send an applicant file via our API and get a structured forensic verdict
                 back instantly. Completely automated fraud defense.

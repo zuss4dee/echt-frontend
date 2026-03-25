@@ -320,6 +320,22 @@ export function PricingSection({ className, onContactClick }: PricingSectionProp
                     <p className="mx-auto mt-5 max-w-sm text-center text-sm font-medium leading-relaxed text-zinc-800">
                       Grandfathered in. You will never pay the £249 rate.
                     </p>
+                    {onContactClick ? (
+                      <button
+                        type="button"
+                        onClick={onContactClick}
+                        className="mt-6 flex w-full items-center justify-center rounded-xl border border-amber-500/30 bg-gradient-to-b from-amber-600 to-orange-700 px-4 py-3.5 text-center text-sm font-semibold text-white shadow-md shadow-amber-900/20 transition hover:from-amber-500 hover:to-orange-600"
+                      >
+                        Apply for a Founding Partner spot
+                      </button>
+                    ) : (
+                      <Link
+                        href="/contact"
+                        className="mt-6 flex w-full items-center justify-center rounded-xl border border-amber-500/30 bg-gradient-to-b from-amber-600 to-orange-700 px-4 py-3.5 text-center text-sm font-semibold text-white shadow-md shadow-amber-900/20 transition hover:from-amber-500 hover:to-orange-600"
+                      >
+                        Apply for a Founding Partner spot
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -349,19 +365,45 @@ export function PricingSection({ className, onContactClick }: PricingSectionProp
           </div>
         )}
 
-        <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-zinc-200 bg-gradient-to-b from-zinc-50 to-white px-6 py-6 text-center shadow-sm sm:px-8">
-          <p className="text-base font-semibold text-zinc-900">Building a custom workflow?</p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            We offer full API and webhook access for Enterprise teams. Connect Echt directly to your
-            existing systems.{" "}
-            <Link
-              href="/contact"
-              className="font-medium text-zinc-800 underline underline-offset-2 transition hover:text-zinc-950"
-            >
-              Contact our team
-            </Link>{" "}
-            for custom integration pricing and volume limits.
-          </p>
+        <div className="relative mx-auto mt-10 max-w-3xl overflow-hidden rounded-2xl border border-violet-200/70 bg-gradient-to-br from-violet-50/95 via-white to-slate-50 px-6 py-8 text-center shadow-lg shadow-violet-950/10 ring-1 ring-violet-200/50 sm:px-10 sm:py-10">
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-indigo-400/15 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative">
+            <span className="inline-flex items-center rounded-full border border-violet-200 bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-800 shadow-sm backdrop-blur-sm">
+              Enterprise
+            </span>
+            <h3 className="mt-4 text-balance text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl">
+              Building a custom workflow?
+            </h3>
+            <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm leading-relaxed text-zinc-600 sm:text-[15px]">
+              We offer full API and webhook access for Enterprise teams. Connect Echt directly to your
+              existing systems for custom integration pricing and volume limits.
+            </p>
+            <div className="mt-6 flex justify-center">
+              {onContactClick ? (
+                <button
+                  type="button"
+                  onClick={onContactClick}
+                  className="inline-flex min-h-[44px] w-full max-w-sm items-center justify-center rounded-xl border border-violet-300/60 bg-gradient-to-b from-violet-600 to-indigo-800 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-violet-950/25 transition hover:from-violet-500 hover:to-indigo-700 sm:w-auto sm:min-w-[200px]"
+                >
+                  Contact our team
+                </button>
+              ) : (
+                <Link
+                  href="/contact"
+                  className="inline-flex min-h-[44px] w-full max-w-sm items-center justify-center rounded-xl border border-violet-300/60 bg-gradient-to-b from-violet-600 to-indigo-800 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-violet-950/25 transition hover:from-violet-500 hover:to-indigo-700 sm:w-auto sm:min-w-[200px]"
+                >
+                  Contact our team
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-zinc-500">
