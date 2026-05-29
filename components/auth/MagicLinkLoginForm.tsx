@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EchtWordmark } from "@/components/EchtLogo";
@@ -10,19 +9,9 @@ import { EchtWordmark } from "@/components/EchtLogo";
 type MagicLinkLoginFormProps = {
   /** Set when redirected from `/auth/callback` with `?error=true`. */
   callbackError?: boolean;
-  /** After Whop checkout, user lands on `/login?checkout=success`. */
-  checkoutSuccess?: boolean;
-  /** From marketing: sign out first so the user can enter the correct checkout email. */
-  switchAccount?: boolean;
 };
 
-export function MagicLinkLoginForm({
-  callbackError = false,
-  checkoutSuccess = false,
-  switchAccount = false,
-}: MagicLinkLoginFormProps) {
-  const router = useRouter();
-  const [switchingAccount, setSwitchingAccount] = useState(false);
+export function MagicLinkLoginForm({ callbackError = false }: MagicLinkLoginFormProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
@@ -77,23 +66,12 @@ export function MagicLinkLoginForm({
           </Link>
         </div>
         <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-[2rem] sm:leading-tight">
-          Create an account
+          Sign in
         </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-          {checkoutSuccess
-            ? "Enter the same email you used at Whop checkout below, then request your magic link."
-            : "Enter your email below to create your account"}
+          Enter your email to receive a secure sign-in link.
         </p>
       </div>
-
-      {checkoutSuccess ? (
-        <div
-          className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-[13px] leading-relaxed text-emerald-950"
-          role="status"
-        >
-          <p className="font-medium text-emerald-950">Payment received</p>
-        </div>
-      ) : null}
 
       {success ? (
         <div
@@ -126,30 +104,16 @@ export function MagicLinkLoginForm({
             <label htmlFor="email" className="sr-only">
               Email
             </label>
-            {switchingAccount ? (
-              <p className="mb-2 text-left text-[13px] text-neutral-500" role="status">
-                Switching account…
-              </p>
-            ) : null}
-            {checkoutSuccess ? (
-              <p
-                id="checkout-email-hint"
-                className="mb-2 text-left text-[13px] font-medium text-neutral-600"
-              >
-                Email (same as Whop checkout)
-              </p>
-            ) : null}
             <input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
               inputMode="email"
-              placeholder={checkoutSuccess ? "Same email you paid with" : "name@example.com"}
-              aria-describedby={checkoutSuccess ? "checkout-email-hint" : undefined}
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading || switchingAccount}
+              disabled={loading}
               className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3.5 text-[15px] text-neutral-900 shadow-sm placeholder:text-neutral-400 transition-colors focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-60"
             />
             {error ? (
@@ -160,10 +124,10 @@ export function MagicLinkLoginForm({
           </div>
           <button
             type="submit"
-            disabled={loading || switchingAccount}
+            disabled={loading}
             className="h-11 w-full rounded-lg bg-neutral-900 py-2.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Sending…" : switchingAccount ? "Please wait…" : "Sign In with Email"}
+            {loading ? "Sending…" : "Sign in with email"}
           </button>
         </form>
       )}

@@ -1,0 +1,73 @@
+"use client";
+
+import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { useEffect, useRef } from "react";
+
+function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; prefix?: string; suffix?: string; decimals?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-20%" });
+  const mv = useMotionValue(0);
+  const rounded = useTransform(mv, (v) => prefix + v.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + suffix);
+
+  useEffect(() => {
+    if (inView) {
+      const controls = animate(mv, to, { duration: 2.2, ease: [0.16, 1, 0.3, 1] });
+      return controls.stop;
+    }
+  }, [inView, to, mv]);
+
+  useEffect(() => rounded.on("change", (v) => { if (ref.current) ref.current.textContent = v; }), [rounded]);
+
+  return <span ref={ref}>{prefix}0{suffix}</span>;
+}
+
+const STATS = [
+  { value: 50000, prefix: "£", label: "AVERAGE FRAUD PREVENTED / PORTFOLIO" },
+  { value: 1240000, label: "FORENSIC CHECKS COMPLETED" },
+  { value: 99.4, suffix: "%", decimals: 1, label: "VERDICT ACCURACY" },
+  { value: 82, suffix: "ms", label: "MEDIAN ANALYSIS LATENCY" },
+];
+
+export function Proof() {
+  return (
+    <section id="proof" className="relative border-t border-hairline py-32">
+      <div className="mx-auto max-w-[1600px] px-8">
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-12 md:col-span-3">
+            <span className="label-micro text-muted-foreground">02 / 05 — ENTERPRISE PROOF</span>
+          </div>
+          <div className="col-span-12 md:col-span-9">
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-15%" }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="display-serif max-w-[14ch] text-[clamp(48px,7vw,108px)] text-foreground"
+            >
+              Numbers <span className="italic">don't</span> lie. Documents sometimes do.
+            </motion.h2>
+          </div>
+        </div>
+
+        <div className="mt-28 grid grid-cols-1 gap-px bg-hairline md:grid-cols-4">
+          {STATS.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ delay: i * 0.08, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-background p-10"
+            >
+              <span className="label-micro text-muted-foreground">0{i + 1}</span>
+              <div className="mt-10 display-serif text-[clamp(48px,5vw,80px)] text-foreground">
+                <Counter to={s.value} prefix={s.prefix} suffix={s.suffix} decimals={s.decimals} />
+              </div>
+              <p className="mt-8 label-micro max-w-[18ch] text-muted-foreground">{s.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

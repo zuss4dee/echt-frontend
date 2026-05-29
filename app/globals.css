@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source "../components/marketing";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -37,6 +39,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --verdict-red: oklch(0.55 0.245 27);
+  --verdict-green: oklch(0.62 0.18 145);
+  --hairline: oklch(0.88 0.003 240);
 }
 
 @theme inline {
@@ -73,6 +78,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-verdict-red: var(--verdict-red);
+  --color-verdict-green: var(--verdict-green);
+  --color-hairline: var(--hairline);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

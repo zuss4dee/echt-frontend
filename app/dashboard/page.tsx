@@ -17,7 +17,7 @@ export default function DashboardPage() {
         href="/"
         className="text-sm font-medium text-violet-700 underline-offset-4 hover:underline"
       >
-        Back to marketing site
+        App home
       </Link>
     </main>
   );

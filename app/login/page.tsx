@@ -6,22 +6,16 @@ export const metadata = {
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string; checkout?: string; switch_account?: string }>;
+  searchParams: Promise<{ error?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const callbackError = params.error === "true";
-  const checkoutSuccess = params.checkout === "success";
-  const switchAccount = params.switch_account === "1";
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-4 py-16">
-      <MagicLinkLoginForm
-        callbackError={callbackError}
-        checkoutSuccess={checkoutSuccess}
-        switchAccount={switchAccount}
-      />
+      <MagicLinkLoginForm callbackError={callbackError} />
     </main>
   );
 }

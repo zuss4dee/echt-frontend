@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+.marketing-site {
+  --radius: 0px;
+  --background: oklch(0.995 0 0);
+  --foreground: oklch(0.18 0.005 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.005 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.005 240);
+  --primary: oklch(0.18 0.005 240);
+  --primary-foreground: oklch(0.995 0 0);
+  --secondary: oklch(0.96 0.002 240);
+  --secondary-foreground: oklch(0.18 0.005 240);
+  --muted: oklch(0.96 0.002 240);
+  --muted-foreground: oklch(0.5 0.005 240);
+  --accent: oklch(0.96 0.002 240);
+  --accent-foreground: oklch(0.18 0.005 240);
+  --destructive: oklch(0.55 0.235 27);
+  --destructive-foreground: oklch(0.995 0 0);
+  --border: oklch(0.92 0.003 240);
+  --input: oklch(0.92 0.003 240);
+  --ring: oklch(0.18 0.005 240);
+  --verdict-red: oklch(0.55 0.245 27);
+  --verdict-green: oklch(0.62 0.18 145);
+  --hairline: oklch(0.88 0.003 240);
+  --rule: oklch(0.18 0.005 240);
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-card: var(--card);
+  --color-verdict-red: var(--verdict-red);
+  --color-verdict-green: var(--verdict-green);
+  --color-hairline: var(--hairline);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "ss01", "cv11";
+}
+
+.marketing-site .label-micro {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.marketing-site .display-serif {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+.marketing-site .border-hairline {
+  border-color: var(--hairline);
+}
+
+.marketing-site .bg-hairline {
+  background-color: var(--hairline);
+}
+
+.marketing-site .text-verdict-red {
+  color: var(--verdict-red);
+}
+
+.marketing-site .text-verdict-green {
+  color: var(--verdict-green);
+}
+
+.marketing-site .bg-verdict-green {
+  background-color: var(--verdict-green);
+}
+
+.marketing-site .bg-verdict-red {
+  background-color: var(--verdict-red);
+}
+
+.marketing-site .border-verdict-red {
+  border-color: var(--verdict-red);
+}
+
+.marketing-site .bg-blueprint {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px);
+  background-size:
+    32px 32px,
+    32px 32px,
+    256px 256px,
+    256px 256px;
+  background-position: -1px -1px;
+}
+
+.marketing-site .bg-crosshair {
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in oklab, var(--foreground) 18%, transparent) 1px,
+    transparent 1.5px
+  );
+  background-size: 64px 64px;
+}
+
+.marketing-site .lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}

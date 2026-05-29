@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
    * (fixes “Blocked cross-origin request … from 192.168.x.x”).
    * Add the hostname shown next to “Network:” when you run `next dev` if it changes.
    */
-  allowedDevOrigins: ["192.168.100.12"],
+  allowedDevOrigins: ["192.168.100.12", "192.168.100.14"],
 };
 
 export default nextConfig;

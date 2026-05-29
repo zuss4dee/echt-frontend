@@ -5,12 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EchtWordmark } from "@/components/EchtLogo";
-import { PaymentPendingModal } from "@/components/marketing/PaymentPendingModal";
 import { isOnboardingComplete, type UserProfileMetadata } from "@/lib/user-metadata";
-import {
-  isNoSubscriptionReason,
-  postWhopVerifyAccess,
-} from "@/lib/whop-verify-client";
 import { upsertPublicProfile } from "@/lib/supabase/profiles";
 
 const INPUT_CLASS =
@@ -45,8 +40,6 @@ export default function OnboardingPage() {
   const [monthlyReferences, setMonthlyReferences] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** Profile saved but Whop row not ready yet (same as after payment). */
-  const [waitingForAccess, setWaitingForAccess] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,24 +56,7 @@ export default function OnboardingPage() {
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (isOnboardingComplete(meta)) {
-          const { hasAccess, reason } = await postWhopVerifyAccess();
-          if (cancelled) return;
-          if (hasAccess) {
-            router.replace("/analyze");
-            return;
-          }
-          if (isNoSubscriptionReason(reason)) {
-            router.replace("/?subscribe=1&needs_plan=1");
-            return;
-          }
-          setWaitingForAccess(true);
-          setReady(true);
-          return;
-        }
-        const gate = await postWhopVerifyAccess();
-        if (cancelled) return;
-        if (!gate.hasAccess && isNoSubscriptionReason(gate.reason)) {
-          router.replace("/?subscribe=1&needs_plan=1");
+          router.replace("/analyze");
           return;
         }
         setEmail(session.user.email ?? "");
@@ -99,24 +75,6 @@ export default function OnboardingPage() {
       cancelled = true;
     };
   }, [router]);
-
-  useEffect(() => {
-    if (!waitingForAccess || !ready) return;
-    let cancelled = false;
-    const POLL_MS = 1500;
-    const tick = async () => {
-      if (cancelled) return;
-      if ((await postWhopVerifyAccess()).hasAccess) {
-        router.replace("/analyze");
-      }
-    };
-    void tick();
-    const id = setInterval(() => void tick(), POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [waitingForAccess, ready, router]);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -189,33 +147,7 @@ export default function OnboardingPage() {
         }
       }
 
-      const first = await postWhopVerifyAccess();
-      if (first.hasAccess) {
-        router.replace("/analyze");
-        return;
-      }
-      if (isNoSubscriptionReason(first.reason)) {
-        router.replace("/?subscribe=1&needs_plan=1");
-        return;
-      }
-
-      const POLL_MS = 1500;
-      const MAX_POLLS = 12;
-      for (let i = 0; i < MAX_POLLS; i++) {
-        const r = await postWhopVerifyAccess();
-        if (r.hasAccess) {
-          router.replace("/analyze");
-          return;
-        }
-        if (isNoSubscriptionReason(r.reason)) {
-          router.replace("/?subscribe=1&needs_plan=1");
-          return;
-        }
-        if (i < MAX_POLLS - 1) {
-          await new Promise((res) => setTimeout(res, POLL_MS));
-        }
-      }
-      router.replace("/?subscribe=1&access_pending=1");
+      router.replace("/analyze");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -227,14 +159,6 @@ export default function OnboardingPage() {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-white px-4">
         <p className="text-sm text-neutral-500">Loading…</p>
-      </main>
-    );
-  }
-
-  if (waitingForAccess) {
-    return (
-      <main className="min-h-dvh bg-white">
-        <PaymentPendingModal open />
       </main>
     );
   }
