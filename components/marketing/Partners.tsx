@@ -23,15 +23,15 @@ export function Partners() {
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
               className="display-serif mt-10 text-[clamp(56px,9vw,140px)]"
             >
-              Twelve seats.<br />
-              <span className="italic text-background/60">Three remain.</span>
+              The Early Adopter Cohort.<br />
+              <span className="italic text-background/60">Phase One Open.</span>
             </motion.h2>
 
             <div className="mt-16 grid grid-cols-1 gap-px bg-background/15 md:grid-cols-3">
               {[
-                { k: "FOUNDING PARTNER", v: "£2,400 / mo", note: "Locked. For life." },
-                { k: "STANDARD ENTERPRISE", v: "£6,800 / mo", note: "From Q3 2026." },
-                { k: "DELTA", v: "−65%", note: "Founders only." },
+                { k: "FOUNDING PARTNER", v: "£200 / mo", note: "LOCKED. FOR LIFE." },
+                { k: "STANDARD ENTERPRISE", v: "API ACCESS", note: "COMING LATER." },
+                { k: "DELTA", v: "INDEPENDENT AGENCIES", note: "PHASE ONE ONLY." },
               ].map((r) => (
                 <div key={r.k} className="bg-foreground p-8">
                   <span className="label-micro text-background/50">{r.k}</span>
@@ -46,10 +46,10 @@ export function Partners() {
                 href="/login"
                 className="group inline-flex items-center gap-4 border border-background/30 px-7 py-5 transition hover:border-background"
               >
-                <span className="label-micro">REQUEST FOUNDING SEAT</span>
+                <span className="label-micro">RUN A FREE SCAN</span>
                 <span className="block h-px w-10 bg-background transition-all group-hover:w-16" />
               </Link>
-              <span className="label-micro text-background/50">SEATS REMAINING · 03</span>
+              <span className="label-micro text-background/50">SEATS REMAINING · 50</span>
             </div>
           </div>
         </div>

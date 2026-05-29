@@ -3,11 +3,41 @@
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useRef } from "react";
 
-function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; prefix?: string; suffix?: string; decimals?: number }) {
+function Counter({
+  to,
+  prefix = "",
+  suffix = "",
+  decimals = 0,
+  compact = false,
+  staticDisplay,
+}: {
+  to: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  compact?: boolean;
+  staticDisplay?: string;
+}) {
+  if (staticDisplay) {
+    return <span>{staticDisplay}</span>;
+  }
+
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-20%" });
   const mv = useMotionValue(0);
-  const rounded = useTransform(mv, (v) => prefix + v.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + suffix);
+  const rounded = useTransform(mv, (v) => {
+    if (!compact) {
+      return prefix + v.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + suffix;
+    }
+
+    const abs = Math.abs(v);
+    if (abs >= 1000) {
+      const k = Math.round(v / 1000);
+      return `${prefix}${k}k${suffix}`;
+    }
+
+    return prefix + Math.round(v).toString() + suffix;
+  });
 
   useEffect(() => {
     if (inView) {
@@ -22,8 +52,14 @@ function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; p
 }
 
 const STATS = [
-  { value: 50000, prefix: "£", label: "AVERAGE FRAUD PREVENTED / PORTFOLIO" },
-  { value: 1240000, label: "FORENSIC CHECKS COMPLETED" },
+  {
+    value: 100000,
+    prefix: "£",
+    label: "AVERAGE FRAUD PREVENTED / PORTFOLIO",
+    compact: true,
+    staticDisplay: "£100k",
+  },
+  { value: 500, label: "FORENSIC CHECKS COMPLETED" },
   { value: 99.4, suffix: "%", decimals: 1, label: "VERDICT ACCURACY" },
   { value: 82, suffix: "ms", label: "MEDIAN ANALYSIS LATENCY" },
 ];
@@ -61,7 +97,14 @@ export function Proof() {
             >
               <span className="label-micro text-muted-foreground">0{i + 1}</span>
               <div className="mt-10 display-serif text-[clamp(48px,5vw,80px)] text-foreground">
-                <Counter to={s.value} prefix={s.prefix} suffix={s.suffix} decimals={s.decimals} />
+                <Counter
+                  to={s.value}
+                  prefix={s.prefix}
+                  suffix={s.suffix}
+                  decimals={s.decimals}
+                  compact={s.compact}
+                  staticDisplay={s.staticDisplay}
+                />
               </div>
               <p className="mt-8 label-micro max-w-[18ch] text-muted-foreground">{s.label}</p>
             </motion.div>

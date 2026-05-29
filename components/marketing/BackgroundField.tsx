@@ -45,11 +45,6 @@ export function BackgroundField() {
         transition={{ duration: 34, ease: "easeInOut", repeat: Infinity }}
         className="absolute inset-y-0 w-px bg-foreground/[0.05]"
       />
-
-      {/* coordinate label, top-left */}
-      <div className="absolute left-1/2 top-3 -translate-x-1/2 label-micro text-foreground/30">
-        51.5074° N — 0.1278° W
-      </div>
     </div>
   );
 }
