@@ -76,9 +76,9 @@ export function Clearance() {
   }
 
   return (
-    <section id="clearance" className="relative border-t border-hairline py-32">
-      <div className="mx-auto max-w-[1600px] px-8">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="clearance" className="relative border-t border-hairline py-20 sm:py-32">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
+        <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
             <span className="label-micro text-muted-foreground">05 / 05 — CLEARANCE</span>
           </div>
@@ -89,13 +89,13 @@ export function Clearance() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-15%" }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif max-w-[14ch] text-[clamp(56px,9vw,140px)] text-foreground"
+              className="display-serif max-w-[14ch] text-[clamp(44px,9vw,140px)] text-foreground"
             >
               Initialize <span className="italic">contact</span>.
             </motion.h2>
 
-            <form onSubmit={handleSubmit} className="mt-16 border border-foreground bg-background">
-              <div className="flex items-center justify-between border-b border-foreground px-6 py-4">
+            <form onSubmit={handleSubmit} className="mt-12 border border-foreground bg-background sm:mt-16">
+              <div className="flex flex-col items-start justify-between gap-2 border-b border-foreground px-4 py-4 sm:flex-row sm:items-center sm:gap-3 sm:px-6">
                 <div className="flex items-center gap-3">
                   <span className="h-2 w-2 bg-verdict-green" />
                   <span className="label-micro">SECURE INTAKE · TLS 1.3</span>
@@ -116,7 +116,7 @@ export function Clearance() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08, duration: 0.6 }}
                     onFocus={() => setStep(i + 1)}
-                    className="group block bg-background p-8 transition-colors focus-within:bg-foreground/[0.02]"
+                    className="group block bg-background p-6 transition-colors focus-within:bg-foreground/[0.02] sm:p-8"
                   >
                     <span className="label-micro text-muted-foreground">
                       {String(i + 1).padStart(2, "0")} · {f.k}
@@ -126,7 +126,7 @@ export function Clearance() {
                       name={f.name}
                       value={form[f.name]}
                       onChange={(e) => updateField(f.name, e.target.value)}
-                      className="mt-6 w-full border-b border-hairline bg-transparent pb-2 font-sans text-2xl text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 focus:border-foreground"
+                      className="mt-6 w-full border-b border-hairline bg-transparent pb-2 font-sans text-lg text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 focus:border-foreground sm:text-2xl"
                       placeholder={f.ph}
                     />
                   </motion.label>
@@ -138,7 +138,7 @@ export function Clearance() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.32, duration: 0.6 }}
                   onFocus={() => setStep(5)}
-                  className="group block bg-background p-8 transition-colors focus-within:bg-foreground/[0.02] md:col-span-2"
+                  className="group block bg-background p-6 transition-colors focus-within:bg-foreground/[0.02] sm:p-8 md:col-span-2"
                 >
                   <span className="label-micro text-muted-foreground">05 · INQUIRY DETAILS</span>
                   <textarea
@@ -147,14 +147,14 @@ export function Clearance() {
                     rows={4}
                     value={form.inquiry_details}
                     onChange={(e) => updateField("inquiry_details", e.target.value)}
-                    className="mt-6 w-full resize-none border-b border-hairline bg-transparent pb-2 font-sans text-2xl text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 focus:border-foreground"
+                    className="mt-6 w-full resize-none border-b border-hairline bg-transparent pb-2 font-sans text-lg text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 focus:border-foreground sm:text-2xl"
                     placeholder="Outline your specific requirement or fraud challenge..."
                   />
                 </motion.label>
               </div>
 
               {error ? (
-                <p className="border-t border-hairline bg-background px-6 py-4 text-sm text-verdict-red" role="alert">
+                <p className="border-t border-hairline bg-background px-4 py-4 text-sm text-verdict-red sm:px-6" role="alert">
                   {error}
                 </p>
               ) : null}
@@ -171,7 +171,7 @@ export function Clearance() {
                     role="status"
                     aria-live="polite"
                   >
-                    <div className="flex flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-10">
+                    <div className="flex flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 md:flex-row md:items-center md:justify-between md:px-10">
                       <div className="flex items-start gap-5">
                         <span className="mt-2 h-2 w-2 shrink-0 bg-verdict-green" aria-hidden />
                         <div>
@@ -191,7 +191,7 @@ export function Clearance() {
                 ) : null}
               </AnimatePresence>
 
-              <div className="flex flex-col items-start justify-between gap-6 border-t border-foreground px-6 py-6 md:flex-row md:items-center">
+              <div className="flex flex-col items-start justify-between gap-6 border-t border-foreground px-4 py-6 sm:px-6 md:flex-row md:items-center">
                 <div className="flex items-center gap-6">
                   <span className="label-micro text-muted-foreground">CLEARANCE LEVEL</span>
                   <div className="flex items-center gap-2">

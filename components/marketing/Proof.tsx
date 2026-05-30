@@ -66,9 +66,9 @@ const STATS = [
 
 export function Proof() {
   return (
-    <section id="proof" className="relative border-t border-hairline py-32">
-      <div className="mx-auto max-w-[1600px] px-8">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="proof" className="relative border-t border-hairline py-20 sm:py-32">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
+        <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
             <span className="label-micro text-muted-foreground">02 / 05 — ENTERPRISE PROOF</span>
           </div>
@@ -78,14 +78,14 @@ export function Proof() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-15%" }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif max-w-[14ch] text-[clamp(48px,7vw,108px)] text-foreground"
+              className="display-serif max-w-[14ch] text-[clamp(36px,7vw,108px)] text-foreground"
             >
               Numbers <span className="italic">don't</span> lie. Documents sometimes do.
             </motion.h2>
           </div>
         </div>
 
-        <div className="mt-28 grid grid-cols-1 gap-px bg-hairline md:grid-cols-4">
+        <div className="mt-16 grid grid-cols-1 gap-px bg-hairline sm:grid-cols-2 md:mt-28 md:grid-cols-4">
           {STATS.map((s, i) => (
             <motion.div
               key={s.label}
@@ -93,10 +93,10 @@ export function Proof() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
               transition={{ delay: i * 0.08, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-background p-10"
+              className="bg-background p-6 sm:p-10"
             >
               <span className="label-micro text-muted-foreground">0{i + 1}</span>
-              <div className="mt-10 display-serif text-[clamp(48px,5vw,80px)] text-foreground">
+              <div className="mt-6 display-serif text-[clamp(36px,5vw,80px)] text-foreground sm:mt-10">
                 <Counter
                   to={s.value}
                   prefix={s.prefix}
@@ -106,7 +106,7 @@ export function Proof() {
                   staticDisplay={s.staticDisplay}
                 />
               </div>
-              <p className="mt-8 label-micro max-w-[18ch] text-muted-foreground">{s.label}</p>
+              <p className="mt-6 label-micro max-w-[18ch] text-muted-foreground sm:mt-8">{s.label}</p>
             </motion.div>
           ))}
         </div>

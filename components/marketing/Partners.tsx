@@ -77,9 +77,9 @@ export function Partners() {
   }
 
   return (
-    <section id="partners" className="relative border-t border-hairline bg-foreground py-32 text-background">
-      <div className="mx-auto max-w-[1600px] px-8">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="partners" className="relative border-t border-hairline bg-foreground py-20 text-background sm:py-32">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
+        <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
             <span className="label-micro text-background/50">04 / 05 — SCARCITY</span>
           </div>
@@ -93,13 +93,13 @@ export function Partners() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-15%" }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif mt-10 text-[clamp(56px,9vw,140px)]"
+              className="display-serif mt-8 text-[clamp(40px,9vw,140px)] sm:mt-10"
             >
               The Early Adopter Cohort.<br />
               <span className="italic text-background/60">Phase One Open.</span>
             </motion.h2>
 
-            <div className="mt-16 grid grid-cols-1 gap-px bg-background/15 md:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-px bg-background/15 sm:mt-16 md:grid-cols-3">
               {TIERS.map((r) => (
                 <div key={r.k} className="flex flex-col bg-foreground p-8">
                   <span className="label-micro text-background/50">{r.k}</span>
@@ -137,7 +137,7 @@ export function Partners() {
               ))}
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-6">
+            <div className="mt-10 flex flex-wrap items-center gap-6 sm:mt-12">
               <span className="label-micro text-background/50">SEATS REMAINING · 50</span>
             </div>
           </div>
@@ -157,7 +157,7 @@ export function Partners() {
               className="fixed inset-0 z-50 bg-foreground/70 backdrop-blur-[2px]"
               onClick={closeWaitlistModal}
             />
-            <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-6">
+            <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
               <motion.div
                 role="dialog"
                 aria-modal="true"

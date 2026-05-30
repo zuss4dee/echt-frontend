@@ -31,7 +31,7 @@ export function LegalDocumentLayout({
 }: LegalDocumentLayoutProps) {
   return (
     <main className="min-h-dvh bg-neutral-950">
-      <article className="mx-auto max-w-3xl px-6 py-24">
+      <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <Link
           href="/"
           className="label-micro text-neutral-500 transition-colors hover:text-white"

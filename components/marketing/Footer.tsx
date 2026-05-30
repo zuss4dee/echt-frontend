@@ -8,14 +8,14 @@ const LEGAL_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="mx-auto mt-32 flex max-w-[1600px] items-center justify-between border-t border-hairline px-8 py-8">
+    <footer className="mx-auto mt-20 flex max-w-[1600px] flex-col items-start justify-between gap-4 border-t border-hairline px-4 py-8 sm:mt-32 sm:flex-row sm:items-center sm:px-8">
       <div className="flex items-center gap-3">
         <div className="h-2 w-2 bg-foreground" />
         <span className="label-micro">ECHT — © 2026</span>
       </div>
-      <div className="flex flex-col items-end gap-4">
+      <div className="flex flex-col items-start gap-4 sm:items-end">
         <nav
-          className="flex flex-wrap justify-end gap-x-6 gap-y-2 label-micro text-muted-foreground"
+          className="flex flex-wrap gap-x-6 gap-y-2 label-micro text-muted-foreground sm:justify-end"
           aria-label="Legal"
         >
           {LEGAL_LINKS.map((link) => (

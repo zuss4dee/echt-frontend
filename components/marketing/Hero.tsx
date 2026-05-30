@@ -21,31 +21,36 @@ export function Hero() {
     <section ref={ref} className="relative min-h-screen overflow-hidden">
       {/* top hairline meta bar */}
       <div className="absolute inset-x-0 top-0 z-20 border-b border-hairline">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-8 py-5">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-4 sm:px-8 sm:py-5">
           <div className="flex items-center gap-3">
             <div className="h-2 w-2 bg-verdict-green" />
-            <span className="label-micro text-foreground">ECHT — FORENSIC INTEGRITY</span>
+            <span className="label-micro text-foreground">ECHT</span>
+            <span className="hidden label-micro text-foreground sm:inline">— FORENSIC INTEGRITY</span>
           </div>
           <nav className="hidden items-center gap-10 md:flex">
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#proof">Proof</a>
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#engine">Engine</a>
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#partners">Partners</a>
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#clearance">Contact</a>
-            <Link className="label-micro text-muted-foreground hover:text-foreground transition" href="/login">Sign in</Link>
           </nav>
-          <span className="label-micro text-muted-foreground">v 4.21 / LON</span>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Link className="label-micro text-muted-foreground hover:text-foreground transition" href="/login">
+              Sign In
+            </Link>
+            <span className="hidden label-micro text-muted-foreground sm:inline">v 4.21 / LON</span>
+          </div>
         </div>
       </div>
 
-      {/* corner indices */}
-      <div className="pointer-events-none absolute left-8 top-1/2 z-10 -translate-y-1/2">
+      {/* corner indices — desktop only */}
+      <div className="pointer-events-none absolute left-8 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
         <div className="flex flex-col gap-6 label-micro text-muted-foreground">
           <span>01 / 05</span>
           <span className="h-24 w-px bg-foreground/30" />
           <span>HERO</span>
         </div>
       </div>
-      <div className="pointer-events-none absolute right-8 top-1/2 z-10 -translate-y-1/2">
+      <div className="pointer-events-none absolute right-8 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
         <div className="flex flex-col items-end gap-3 label-micro text-muted-foreground">
           {META.map((m) => (
             <div key={m.k} className="flex items-center gap-3">
@@ -57,7 +62,7 @@ export function Hero() {
       </div>
 
       {/* center stage */}
-      <div className="relative z-0 flex min-h-screen items-center justify-center px-8 pt-24">
+      <div className="relative z-0 flex min-h-screen items-center justify-center px-4 pt-24 sm:px-8">
         <motion.div style={{ y }} className="relative w-full max-w-[1100px]">
           {/* headline */}
           <div className="relative z-10 text-center">
@@ -65,7 +70,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif text-[clamp(72px,14vw,220px)] text-foreground"
+              className="display-serif text-[clamp(56px,14vw,220px)] text-foreground"
             >
               Absolute<br />
               <span className="italic">truth</span>.
@@ -74,7 +79,7 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 1 }}
-              className="mx-auto mt-10 max-w-md label-micro text-muted-foreground"
+              className="mx-auto mt-8 max-w-md label-micro text-muted-foreground sm:mt-10"
             >
               FORENSIC VERIFICATION FOR ENTERPRISE TENANT REFERENCING
             </motion.p>
@@ -84,11 +89,11 @@ export function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-12 flex items-center justify-center gap-4"
+              className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center sm:gap-4"
             >
               <Link
                 href="/signup"
-                className="group relative inline-flex items-center justify-center bg-foreground px-8 py-4 text-primary-foreground label-micro transition-colors hover:bg-foreground/90"
+                className="group relative inline-flex items-center justify-center bg-foreground px-6 py-4 text-primary-foreground label-micro transition-colors hover:bg-foreground/90 sm:px-8"
               >
                 <span className="relative z-10">Request Access</span>
                 <span className="absolute inset-y-0 right-0 w-px bg-primary-foreground/20" />
@@ -96,7 +101,7 @@ export function Hero() {
               </Link>
               <Link
                 href="/analyze"
-                className="inline-flex items-center justify-center border border-hairline px-8 py-4 text-foreground label-micro transition-colors hover:border-foreground/30 hover:bg-foreground/[0.02]"
+                className="inline-flex items-center justify-center border border-hairline px-6 py-4 text-foreground label-micro transition-colors hover:border-foreground/30 hover:bg-foreground/[0.02] sm:px-8"
               >
                 <span>Open Echt AI</span>
                 <span className="ml-3 text-muted-foreground">→</span>
@@ -109,7 +114,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 60, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.4, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative mx-auto mt-20 w-full max-w-[640px]"
+            className="relative mx-auto mt-12 w-full max-w-[640px] sm:mt-20"
           >
             {/* shadow plate */}
             <div className="absolute -inset-x-12 -bottom-10 h-24 bg-foreground/5 blur-2xl" />

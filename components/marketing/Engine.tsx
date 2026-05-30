@@ -28,9 +28,9 @@ export function Engine() {
   const docY = useTransform(scrollYProgress, [0, 1], [40, -60]);
 
   return (
-    <section id="engine" ref={ref} className="relative border-t border-hairline py-32">
-      <div className="mx-auto max-w-[1600px] px-8">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="engine" ref={ref} className="relative border-t border-hairline py-20 sm:py-32">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
+        <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
             <span className="label-micro text-muted-foreground">03 / 05 — THE ENGINE</span>
           </div>
@@ -40,7 +40,7 @@ export function Engine() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-15%" }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif max-w-[16ch] text-[clamp(48px,7vw,108px)] text-foreground"
+              className="display-serif max-w-[16ch] text-[clamp(36px,7vw,108px)] text-foreground"
             >
               Every file carries a <span className="italic">past</span>.
             </motion.h2>
@@ -50,7 +50,7 @@ export function Engine() {
           </div>
         </div>
 
-        <div className="relative mt-24 grid grid-cols-12 gap-6">
+        <div className="relative mt-16 grid grid-cols-12 gap-6 sm:mt-24">
           {/* LEFT: payslip with heatmap */}
           <motion.div style={{ y: docY }} className="col-span-12 lg:col-span-5">
             <div className="border border-hairline">
