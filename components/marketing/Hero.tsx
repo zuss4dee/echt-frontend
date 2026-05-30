@@ -30,7 +30,7 @@ export function Hero() {
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#proof">Proof</a>
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#engine">Engine</a>
             <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#partners">Partners</a>
-            <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#clearance">Request Clearance</a>
+            <a className="label-micro text-muted-foreground hover:text-foreground transition" href="#clearance">Contact</a>
             <Link className="label-micro text-muted-foreground hover:text-foreground transition" href="/login">Sign in</Link>
           </nav>
           <span className="label-micro text-muted-foreground">v 4.21 / LON</span>

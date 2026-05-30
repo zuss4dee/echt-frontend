@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { Footer } from "@/components/marketing/Footer";
 
 const CONTACT_SUBMIT_URL = "https://echt-backend.onrender.com/api/contact/submit";
 
@@ -237,13 +238,7 @@ export function Clearance() {
         </div>
       </div>
 
-      <footer className="mx-auto mt-32 flex max-w-[1600px] items-center justify-between border-t border-hairline px-8 py-8">
-        <div className="flex items-center gap-3">
-          <div className="h-2 w-2 bg-foreground" />
-          <span className="label-micro">ECHT — © 2026</span>
-        </div>
-        <span className="label-micro text-muted-foreground">FORENSIC INTEGRITY · LONDON</span>
-      </footer>
+      <Footer />
     </section>
   );
 }
