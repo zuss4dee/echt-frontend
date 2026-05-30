@@ -1,27 +1,25 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { AUTH_LOGIN_PATH, getPostAuthPath, resolveAuthCallbackNext } from "@/lib/auth-routing";
+import { AUTH_LOGIN_PATH, AUTH_RESET_PASSWORD_PATH } from "@/lib/auth-routing";
 
 const LOGIN_ERROR_PATH = `${AUTH_LOGIN_PATH}?error=true`;
+const RESET_ERROR_PATH = `${AUTH_RESET_PASSWORD_PATH}?error=true`;
 
 /**
- * Email confirmation callback (signup). Password recovery uses /auth/recovery-callback.
- * Allow-list this path per origin in Supabase → Auth → URL Configuration.
- * See frontend/docs/SUPABASE_AUTH.md for SMTP and Site URL setup.
- * Session cookies must be set on the same NextResponse we return.
+ * PKCE callback for password recovery only — exchanges code, then sends user to set a new password.
+ * Allow-list: https://<host>/auth/recovery-callback (per origin).
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const origin = url.origin;
   const code = url.searchParams.get("code");
-  const callbackNext = resolveAuthCallbackNext(url.searchParams.get("next"));
 
   const redirectWithError = () =>
-    NextResponse.redirect(new URL(LOGIN_ERROR_PATH, origin));
+    NextResponse.redirect(new URL(RESET_ERROR_PATH, origin));
 
   if (!code) {
-    return redirectWithError();
+    return NextResponse.redirect(new URL(LOGIN_ERROR_PATH, origin));
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -58,14 +56,7 @@ export async function GET(request: Request) {
       return redirectWithError();
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const redirectPath = callbackNext ?? getPostAuthPath(user?.user_metadata);
-    const redirectUrl = new URL(redirectPath, origin);
-
-    const response = NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(new URL(AUTH_RESET_PASSWORD_PATH, origin));
     sessionCookies.forEach(({ name, value, options }) => {
       response.cookies.set(name, value, options);
     });

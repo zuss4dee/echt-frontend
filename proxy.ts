@@ -4,6 +4,7 @@ import {
   APP_ANALYZE_PATH,
   AUTH_LOGIN_PATH,
   AUTH_ONBOARDING_PATH,
+  AUTH_RESET_PASSWORD_PATH,
   AUTH_SIGNUP_PATH,
   getPostAuthPath,
 } from "@/lib/auth-routing";
@@ -53,6 +54,9 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isLogin = pathname === AUTH_LOGIN_PATH;
   const isSignup = pathname === AUTH_SIGNUP_PATH;
+  const isResetPassword =
+    pathname === AUTH_RESET_PASSWORD_PATH ||
+    pathname.startsWith(`${AUTH_RESET_PASSWORD_PATH}/`);
   const isAuthEntry = isLogin || isSignup;
   const isOnboarding =
     pathname === AUTH_ONBOARDING_PATH || pathname.startsWith(`${AUTH_ONBOARDING_PATH}/`);
@@ -82,6 +86,11 @@ export async function proxy(request: NextRequest) {
 
   if (user && isAuthEntry) {
     return redirectTo(getPostAuthPath(metadata));
+  }
+
+  // Recovery session must stay on reset-password until a new password is set.
+  if (user && isResetPassword) {
+    return supabaseResponse;
   }
 
   if (user && onboardingDone && isOnboarding) {

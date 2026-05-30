@@ -94,12 +94,25 @@ export function FortressSignupForm() {
 
       setNoticeEmail(email);
 
-      if (outcome.kind === "already_registered") {
-        if (outcome.confirmed) {
+      if (outcome.kind === "duplicate_signup") {
+        const statusRes = await fetch("/api/auth/email-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const statusBody = (await statusRes.json().catch(() => ({}))) as {
+          status?: string;
+        };
+
+        if (statusBody.status === "confirmed") {
           setError("An account with this email already exists.");
           return;
         }
-        setNotice("already_registered");
+        if (statusBody.status === "unconfirmed") {
+          setNotice("already_registered");
+          return;
+        }
+        setNotice("confirm");
         return;
       }
 
@@ -193,11 +206,12 @@ export function FortressSignupForm() {
             <div className="bg-background px-6 py-4 text-sm text-verdict-red" role="alert">
               <p>{error}</p>
               {error.includes("already exists") ? (
-                <p className="mt-2">
-                  <Link href={AUTH_LOGIN_PATH} className="underline underline-offset-2">
+                <p className="mt-2 text-muted-foreground">
+                  Active accounts do not receive another confirmation email.{" "}
+                  <Link href={AUTH_LOGIN_PATH} className="text-foreground underline underline-offset-2">
                     Sign in
                   </Link>{" "}
-                  instead.
+                  or use password recovery on the login page.
                 </p>
               ) : null}
             </div>

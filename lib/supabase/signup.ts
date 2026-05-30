@@ -3,13 +3,14 @@ import type { AuthResponse } from "@supabase/supabase-js";
 export type SignUpOutcome =
   | { kind: "session" }
   | { kind: "confirm_email" }
-  | { kind: "already_registered"; confirmed: boolean };
+  /** Supabase hides duplicate signups; resolve via /api/auth/email-status */
+  | { kind: "duplicate_signup" };
 
 /**
  * Supabase signUp quirks:
  * - Session present → email confirmation disabled (or user already confirmed).
- * - Empty identities → email already registered (no new confirmation email sent).
- * - Otherwise → confirmation required; check inbox (if SMTP is configured).
+ * - Empty identities → duplicate signup (obfuscated; no new email). Check server for real status.
+ * - Otherwise → new user; confirmation email was sent.
  */
 export function interpretSignUpResponse(data: AuthResponse["data"]): SignUpOutcome {
   if (data.session) {
@@ -23,10 +24,7 @@ export function interpretSignUpResponse(data: AuthResponse["data"]): SignUpOutco
 
   const identities = user.identities ?? [];
   if (identities.length === 0) {
-    const confirmed =
-      Boolean(user.email_confirmed_at) ||
-      Boolean((user as { confirmed_at?: string | null }).confirmed_at);
-    return { kind: "already_registered", confirmed };
+    return { kind: "duplicate_signup" };
   }
 
   return { kind: "confirm_email" };

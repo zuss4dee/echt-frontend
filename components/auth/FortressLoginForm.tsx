@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthComplianceFooter, AuthShell } from "@/components/auth/AuthShell";
 import { AUTH_SIGNUP_PATH, getPostAuthPath } from "@/lib/auth-routing";
-import { getAuthCallbackUrl } from "@/lib/supabase/auth-callback";
+import { getAuthCallbackUrl, getPasswordRecoveryCallbackUrl } from "@/lib/supabase/auth-callback";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 function isEmailNotConfirmedError(message: string | undefined): boolean {
@@ -114,7 +114,7 @@ export function FortressLoginForm({ callbackError = false }: FortressLoginFormPr
       const supabase = createSupabaseBrowserClient();
       const origin = window.location.origin;
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: getAuthCallbackUrl(origin),
+        redirectTo: getPasswordRecoveryCallbackUrl(origin),
       });
 
       if (resetError) {
@@ -122,7 +122,9 @@ export function FortressLoginForm({ callbackError = false }: FortressLoginFormPr
         return;
       }
 
-      setMessage("Check your email for password recovery instructions.");
+      setMessage(
+        "Check your email for a recovery link. After opening it, you will set a new password before signing in.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
