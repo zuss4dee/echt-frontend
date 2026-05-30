@@ -3,15 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   APP_ANALYZE_PATH,
   AUTH_LOGIN_PATH,
-  AUTH_ONBOARDING_PATH,
   AUTH_RESET_PASSWORD_PATH,
+  AUTH_SETUP_PATH,
   AUTH_SIGNUP_PATH,
+  POST_PAYMENT_ONBOARDING_PATH,
   getPostAuthPath,
 } from "@/lib/auth-routing";
 
 /**
  * Refreshes Supabase auth cookies and enforces the auth flow:
- * signup/login → onboarding → analyze
+ * pay → /onboarding (account) → /setup (clearance) → /analyze
  */
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -58,8 +59,11 @@ export async function proxy(request: NextRequest) {
     pathname === AUTH_RESET_PASSWORD_PATH ||
     pathname.startsWith(`${AUTH_RESET_PASSWORD_PATH}/`);
   const isAuthEntry = isLogin || isSignup;
-  const isOnboarding =
-    pathname === AUTH_ONBOARDING_PATH || pathname.startsWith(`${AUTH_ONBOARDING_PATH}/`);
+  const isPostPaymentOnboarding =
+    pathname === POST_PAYMENT_ONBOARDING_PATH ||
+    pathname.startsWith(`${POST_PAYMENT_ONBOARDING_PATH}/`);
+  const isSetup =
+    pathname === AUTH_SETUP_PATH || pathname.startsWith(`${AUTH_SETUP_PATH}/`);
   const isAppRoute =
     pathname === APP_ANALYZE_PATH ||
     pathname.startsWith(`${APP_ANALYZE_PATH}/`) ||
@@ -93,16 +97,21 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
-  if (user && onboardingDone && isOnboarding) {
+  if (user && onboardingDone && isSetup) {
     return redirectTo(APP_ANALYZE_PATH);
   }
 
   if (user && !onboardingDone && isAppRoute) {
-    return redirectTo(AUTH_ONBOARDING_PATH);
+    return redirectTo(AUTH_SETUP_PATH);
   }
 
-  if (!user && (isOnboarding || isAppRoute)) {
+  if (!user && (isSetup || isAppRoute)) {
     return redirectTo(AUTH_LOGIN_PATH);
+  }
+
+  // Post-payment onboarding is public (session_id validated client-side).
+  if (isPostPaymentOnboarding) {
+    return supabaseResponse;
   }
 
   return supabaseResponse;

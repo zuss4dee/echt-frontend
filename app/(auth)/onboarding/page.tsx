@@ -1,10 +1,10 @@
-import { FortressOnboardingFlow } from "@/components/auth/FortressOnboardingFlow";
+import { PostPaymentOnboarding } from "@/components/onboarding/PostPaymentOnboarding";
 
 export const metadata = {
-  title: "ECHT — Onboarding / Forensic Clearance",
-  description: "Initialize your ECHT workspace and run your first forensic scan.",
+  title: "ECHT — Initialize Workspace",
+  description: "Create your ECHT account after Phase One checkout.",
 };
 
-export default function OnboardingPage() {
-  return <FortressOnboardingFlow />;
+export default function PostPaymentOnboardingPage() {
+  return <PostPaymentOnboarding />;
 }

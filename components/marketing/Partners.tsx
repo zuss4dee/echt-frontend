@@ -1,7 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
+
+const POLAR_PHASE_ONE_CHECKOUT_URL =
+  "https://buy.polar.sh/polar_cl_hR1DhJgacIxSK3pBVpIdie0gApFHyiAZ97FTO028dVK";
+
+const CTA_BASE_CLASS =
+  "group inline-flex w-full items-center gap-4 border border-background/30 px-7 py-5 transition hover:border-background";
+
+const TIERS = [
+  { k: "FOUNDING PARTNER", v: "£200 / mo", note: "LOCKED. FOR LIFE.", cta: "checkout" as const },
+  { k: "STANDARD ENTERPRISE", v: "API ACCESS", note: "COMING LATER.", cta: "waitlist" as const },
+  { k: "DELTA", v: "INDEPENDENT AGENCIES", note: "PHASE ONE ONLY.", cta: null },
+];
 
 export function Partners() {
   return (
@@ -28,27 +39,38 @@ export function Partners() {
             </motion.h2>
 
             <div className="mt-16 grid grid-cols-1 gap-px bg-background/15 md:grid-cols-3">
-              {[
-                { k: "FOUNDING PARTNER", v: "£200 / mo", note: "LOCKED. FOR LIFE." },
-                { k: "STANDARD ENTERPRISE", v: "API ACCESS", note: "COMING LATER." },
-                { k: "DELTA", v: "INDEPENDENT AGENCIES", note: "PHASE ONE ONLY." },
-              ].map((r) => (
-                <div key={r.k} className="bg-foreground p-8">
+              {TIERS.map((r) => (
+                <div key={r.k} className="flex flex-col bg-foreground p-8">
                   <span className="label-micro text-background/50">{r.k}</span>
                   <div className="mt-6 display-serif text-4xl">{r.v}</div>
                   <p className="mt-3 label-micro text-background/60">{r.note}</p>
+
+                  {r.cta === "checkout" ? (
+                    <a
+                      href={POLAR_PHASE_ONE_CHECKOUT_URL}
+                      className={`${CTA_BASE_CLASS} mt-10`}
+                    >
+                      <span className="label-micro">SECURE PHASE ONE</span>
+                      <span className="block h-px w-10 bg-background transition-all group-hover:w-16" />
+                    </a>
+                  ) : null}
+
+                  {r.cta === "waitlist" ? (
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      className={`${CTA_BASE_CLASS} mt-10 cursor-not-allowed opacity-50 hover:border-background/30`}
+                    >
+                      <span className="label-micro">JOIN WAITLIST</span>
+                      <span className="block h-px w-10 bg-background transition-all group-hover:w-16" />
+                    </button>
+                  ) : null}
                 </div>
               ))}
             </div>
 
             <div className="mt-12 flex flex-wrap items-center gap-6">
-              <Link
-                href="/signup"
-                className="group inline-flex items-center gap-4 border border-background/30 px-7 py-5 transition hover:border-background"
-              >
-                <span className="label-micro">RUN A FREE SCAN</span>
-                <span className="block h-px w-10 bg-background transition-all group-hover:w-16" />
-              </Link>
               <span className="label-micro text-background/50">SEATS REMAINING · 50</span>
             </div>
           </div>

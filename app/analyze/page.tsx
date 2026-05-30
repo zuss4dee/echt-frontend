@@ -22,7 +22,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   APP_ANALYZE_PATH,
   AUTH_LOGIN_PATH,
-  AUTH_ONBOARDING_PATH,
+  AUTH_SETUP_PATH,
 } from "@/lib/auth-routing";
 import { consumePendingUpload } from "@/lib/pending-upload";
 import {
@@ -209,7 +209,7 @@ export default function Home() {
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (!isOnboardingComplete(meta)) {
-          router.replace(AUTH_ONBOARDING_PATH);
+          router.replace(AUTH_SETUP_PATH);
           return;
         }
         const u = session.user;
