@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useState } from "react";
+import { AUTH_SIGNUP_PATH } from "@/lib/auth-routing";
 
 const FIELDS = [
   { k: "ORGANISATION", ph: "Legal entity" },
@@ -79,15 +81,13 @@ export function Clearance() {
                   <span className="label-micro text-foreground">{step}/4</span>
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 380, damping: 24 }}
+                <Link
+                  href={AUTH_SIGNUP_PATH}
                   className="group inline-flex items-center gap-4 bg-foreground px-8 py-5 text-background"
                 >
                   <span className="label-micro">SUBMIT FOR REVIEW</span>
                   <span className="block h-px w-10 bg-background transition-all group-hover:w-16" />
-                </motion.button>
+                </Link>
               </div>
             </div>
 

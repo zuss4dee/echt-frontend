@@ -87,7 +87,7 @@ export function Hero() {
               className="mt-12 flex items-center justify-center gap-4"
             >
               <Link
-                href="/login"
+                href="/signup"
                 className="group relative inline-flex items-center justify-center bg-foreground px-8 py-4 text-primary-foreground label-micro transition-colors hover:bg-foreground/90"
               >
                 <span className="relative z-10">Request Access</span>

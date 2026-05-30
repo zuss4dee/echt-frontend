@@ -1,10 +1,16 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  APP_ANALYZE_PATH,
+  AUTH_LOGIN_PATH,
+  AUTH_ONBOARDING_PATH,
+  AUTH_SIGNUP_PATH,
+  getPostAuthPath,
+} from "@/lib/auth-routing";
 
 /**
- * Refreshes Supabase auth cookies on matching routes and protects app routes.
- * Next.js 16+ uses the `proxy` file convention (formerly `middleware.ts`).
- * See: https://supabase.com/docs/guides/auth/server-side/nextjs
+ * Refreshes Supabase auth cookies and enforces the auth flow:
+ * signup/login → onboarding → analyze
  */
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -45,21 +51,24 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const isLogin = pathname === AUTH_LOGIN_PATH;
+  const isSignup = pathname === AUTH_SIGNUP_PATH;
+  const isAuthEntry = isLogin || isSignup;
   const isOnboarding =
-    pathname === "/onboarding" || pathname.startsWith("/onboarding/");
-  const isProtectedApp =
+    pathname === AUTH_ONBOARDING_PATH || pathname.startsWith(`${AUTH_ONBOARDING_PATH}/`);
+  const isAppRoute =
+    pathname === APP_ANALYZE_PATH ||
+    pathname.startsWith(`${APP_ANALYZE_PATH}/`) ||
     pathname === "/dashboard" ||
-    pathname.startsWith("/dashboard/") ||
-    pathname === "/analyze" ||
-    pathname.startsWith("/analyze/") ||
-    isOnboarding;
+    pathname.startsWith("/dashboard/");
 
-  if (pathname === "/login" && user) {
-    const onboardingDone = user.user_metadata?.onboarding_complete === true;
+  const metadata = user?.user_metadata;
+  const onboardingDone = metadata?.onboarding_complete === true;
+
+  function redirectTo(path: string) {
     const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = path;
     redirectUrl.searchParams.delete("error");
-    redirectUrl.pathname = onboardingDone ? "/analyze" : "/onboarding";
-
     const redirectResponse = NextResponse.redirect(redirectUrl);
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(
@@ -71,21 +80,20 @@ export async function proxy(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (isProtectedApp && !user) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.searchParams.delete("error");
-    const redirectResponse = NextResponse.redirect(loginUrl);
+  if (user && isAuthEntry) {
+    return redirectTo(getPostAuthPath(metadata));
+  }
 
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(
-        cookie.name,
-        cookie.value,
-        cookie as CookieOptions,
-      );
-    });
+  if (user && onboardingDone && isOnboarding) {
+    return redirectTo(APP_ANALYZE_PATH);
+  }
 
-    return redirectResponse;
+  if (user && !onboardingDone && isAppRoute) {
+    return redirectTo(AUTH_ONBOARDING_PATH);
+  }
+
+  if (!user && (isOnboarding || isAppRoute)) {
+    return redirectTo(AUTH_LOGIN_PATH);
   }
 
   return supabaseResponse;

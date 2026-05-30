@@ -43,7 +43,7 @@ export function Partners() {
 
             <div className="mt-12 flex flex-wrap items-center gap-6">
               <Link
-                href="/login"
+                href="/signup"
                 className="group inline-flex items-center gap-4 border border-background/30 px-7 py-5 transition hover:border-background"
               >
                 <span className="label-micro">RUN A FREE SCAN</span>

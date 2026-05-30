@@ -1,15 +1,15 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { AUTH_LOGIN_PATH, getPostAuthPath } from "@/lib/auth-routing";
 
-const ANALYZE_PATH = "/analyze";
-const ONBOARDING_PATH = "/onboarding";
-const LOGIN_ERROR_PATH = "/login?error=true";
+const LOGIN_ERROR_PATH = `${AUTH_LOGIN_PATH}?error=true`;
 
 /**
- * OAuth / email magic-link PKCE callback.
- *
- * Important: Session cookies must be set on the *same* `NextResponse` we return.
+ * Email confirmation and password recovery callback.
+ * Allow-list this path per origin in Supabase → Auth → URL Configuration.
+ * See frontend/docs/SUPABASE_AUTH.md for SMTP and Site URL setup.
+ * Session cookies must be set on the same NextResponse we return.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -61,11 +61,7 @@ export async function GET(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const onboardingDone = user?.user_metadata?.onboarding_complete === true;
-    const redirectUrl = new URL(
-      onboardingDone ? ANALYZE_PATH : ONBOARDING_PATH,
-      origin,
-    );
+    const redirectUrl = new URL(getPostAuthPath(user?.user_metadata), origin);
 
     const response = NextResponse.redirect(redirectUrl);
     sessionCookies.forEach(({ name, value, options }) => {

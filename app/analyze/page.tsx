@@ -20,6 +20,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
+  APP_ANALYZE_PATH,
+  AUTH_LOGIN_PATH,
+  AUTH_ONBOARDING_PATH,
+} from "@/lib/auth-routing";
+import { consumePendingUpload } from "@/lib/pending-upload";
+import {
   getProfileLetter,
   isOnboardingComplete,
   type UserProfileMetadata,
@@ -198,12 +204,12 @@ export default function Home() {
         } = await supabase.auth.getSession();
         if (cancelled) return;
         if (!session?.user) {
-          router.replace("/login");
+          router.replace(AUTH_LOGIN_PATH);
           return;
         }
         const meta = session.user.user_metadata as UserProfileMetadata | undefined;
         if (!isOnboardingComplete(meta)) {
-          router.replace("/onboarding");
+          router.replace(AUTH_ONBOARDING_PATH);
           return;
         }
         const u = session.user;
@@ -217,7 +223,7 @@ export default function Home() {
         });
         setAuthReady(true);
       } catch {
-        if (!cancelled) router.replace("/login");
+        if (!cancelled) router.replace(AUTH_LOGIN_PATH);
       }
     })();
     return () => {
@@ -265,7 +271,7 @@ export default function Home() {
       await supabase.auth.signOut();
     } finally {
       // Force a clean re-route to the auth page.
-      window.location.href = "/login";
+      window.location.href = AUTH_LOGIN_PATH;
     }
   }, []);
 
@@ -368,6 +374,21 @@ export default function Home() {
     },
     [docTypeKey, addToast, loadRecentScans]
   );
+
+  useEffect(() => {
+    if (!authReady) return;
+
+    let cancelled = false;
+    (async () => {
+      const pending = await consumePendingUpload();
+      if (cancelled || !pending) return;
+      void handleUpload(pending);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authReady, handleUpload]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -1731,7 +1752,7 @@ export default function Home() {
                   </ul>
                   <p className="pt-1 text-[10px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
                     Questions about data or your agreement?{" "}
-                    <Link href="/login" className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
+                    <Link href={AUTH_LOGIN_PATH} className="font-medium underline underline-offset-2 hover:opacity-80" style={{ color: COLORS.purple }}>
                       Contact us
                     </Link>
                     . Legal terms:{" "}
@@ -1892,7 +1913,7 @@ export default function Home() {
                   </h4>
                   <nav className="flex flex-col gap-1" aria-label="Support links">
                     <Link
-                      href="/login"
+                      href={AUTH_LOGIN_PATH}
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition hover:bg-slate-100"
                       style={{ color: COLORS.textPrimary }}
