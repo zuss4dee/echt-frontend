@@ -3,6 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
+const CONTACT_SUBMIT_URL = "https://echt-backend.onrender.com/api/contact/submit";
+
 const FIELDS = [
   { k: "CORPORATE ENTITY", ph: "Corporate Entity", name: "corporate_entity" },
   { k: "PORTFOLIO VOLUME", ph: "Portfolio Volume", name: "portfolio_volume" },
@@ -42,34 +44,31 @@ export function Clearance() {
     setSuccess(false);
     setPending(true);
 
+    const payload = {
+      corporate_entity: form.corporate_entity,
+      portfolio_volume: form.portfolio_volume,
+      operational_region: form.operational_region,
+      preferred_contact: form.preferred_contact,
+      inquiry_details: form.inquiry_details,
+    };
+
     try {
-      const res = await fetch("/api/contact/submit", {
+      const res = await fetch(CONTACT_SUBMIT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
-      const body = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        detail?: string;
-      };
-
-      if (!res.ok) {
-        setError(
-          typeof body.error === "string"
-            ? body.error
-            : typeof body.detail === "string"
-              ? body.detail
-              : "Could not send inquiry.",
-        );
+      if (res.status === 200 || res.status === 201) {
+        setForm(EMPTY_FORM);
+        setStep(0);
+        setSuccess(true);
         return;
       }
 
-      setForm(EMPTY_FORM);
-      setStep(0);
-      setSuccess(true);
-    } catch {
       setError("Could not send inquiry. Please try again.");
+    } catch {
+      /* network error — button reverts via pending=false */
     } finally {
       setPending(false);
     }
