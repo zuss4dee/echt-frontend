@@ -4,12 +4,8 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const META = [
-  { k: "STATUS", v: "INTAKE / SCAN ACTIVE" },
-  { k: "DOC.ID", v: "ECHT-9F2-A71B" },
-  { k: "ENGINE", v: "FORENSIC v4.21" },
-  { k: "LATENCY", v: "82ms" },
-];
+const THREAT_AUDIT_MAILTO =
+  "mailto:hello@useecht.com?subject=Free%20Threat%20Audit%20Request";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,27 +33,7 @@ export function Hero() {
             <Link className="label-micro text-muted-foreground hover:text-foreground transition" href="/login">
               Sign In
             </Link>
-            <span className="hidden label-micro text-muted-foreground sm:inline">v 4.21 / LON</span>
           </div>
-        </div>
-      </div>
-
-      {/* corner indices — desktop only */}
-      <div className="pointer-events-none absolute left-8 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
-        <div className="flex flex-col gap-6 label-micro text-muted-foreground">
-          <span>01 / 05</span>
-          <span className="h-24 w-px bg-foreground/30" />
-          <span>HERO</span>
-        </div>
-      </div>
-      <div className="pointer-events-none absolute right-8 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
-        <div className="flex flex-col items-end gap-3 label-micro text-muted-foreground">
-          {META.map((m) => (
-            <div key={m.k} className="flex items-center gap-3">
-              <span>{m.k}</span>
-              <span className="text-foreground">{m.v}</span>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -70,18 +46,17 @@ export function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="display-serif text-[clamp(56px,14vw,220px)] text-foreground"
+              className="display-serif text-[clamp(40px,8vw,120px)] leading-[1.05] text-foreground"
             >
-              Absolute<br />
-              <span className="italic">truth</span>.
+              Stop Revenue Leakage from Fake Student Cancellations.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 1 }}
-              className="mx-auto mt-8 max-w-md label-micro text-muted-foreground sm:mt-10"
+              className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:mt-10"
             >
-              FORENSIC VERIFICATION FOR ENTERPRISE TENANT REFERENCING
+              AI forensic verification that catches forged medical notes and fake visa rejections before you issue a lease-break refund.
             </motion.p>
 
             {/* CTA buttons */}
@@ -91,21 +66,14 @@ export function Hero() {
               transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center sm:gap-4"
             >
-              <Link
-                href="/signup"
+              <a
+                href={THREAT_AUDIT_MAILTO}
                 className="group relative inline-flex items-center justify-center bg-foreground px-6 py-4 text-primary-foreground label-micro transition-colors hover:bg-foreground/90 sm:px-8"
               >
-                <span className="relative z-10">Request Access</span>
+                <span className="relative z-10">Book a Free Threat Audit</span>
                 <span className="absolute inset-y-0 right-0 w-px bg-primary-foreground/20" />
                 <span className="ml-3 text-primary-foreground/60 transition-colors group-hover:text-primary-foreground">→</span>
-              </Link>
-              <Link
-                href="/analyze"
-                className="inline-flex items-center justify-center border border-hairline px-6 py-4 text-foreground label-micro transition-colors hover:border-foreground/30 hover:bg-foreground/[0.02] sm:px-8"
-              >
-                <span>Open Echt AI</span>
-                <span className="ml-3 text-muted-foreground">→</span>
-              </Link>
+              </a>
             </motion.div>
           </div>
 
@@ -121,7 +89,7 @@ export function Hero() {
             <div className="relative aspect-[1/1.34] border border-foreground/15 bg-card shadow-[0_40px_80px_-30px_rgba(20,20,30,0.25),0_8px_24px_-12px_rgba(20,20,30,0.15)]">
               {/* doc header */}
               <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
-                <span className="label-micro text-muted-foreground">PAYSLIP_MARCH.PDF</span>
+                <span className="label-micro text-muted-foreground">Forged_Medical_Certificate.pdf</span>
                 <span className="label-micro text-muted-foreground">2.3 MB</span>
               </div>
               {/* doc body */}
@@ -168,10 +136,8 @@ export function Hero() {
               ))}
             </div>
 
-            {/* annotation */}
-            <div className="mt-6 flex items-center justify-between label-micro text-muted-foreground">
-              <span>SCAN — PIXEL LEVEL</span>
-              <span className="text-verdict-green">● INTEGRITY 99.4%</span>
+            <div className="mt-6 flex items-center justify-end label-micro text-muted-foreground">
+              <span className="text-verdict-green">● FORGERY DETECTED</span>
             </div>
           </motion.div>
         </motion.div>

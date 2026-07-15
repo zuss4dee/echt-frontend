@@ -80,7 +80,7 @@ export function Clearance() {
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
-            <span className="label-micro text-muted-foreground">05 / 05 — CLEARANCE</span>
+            <span className="label-micro text-muted-foreground">CLEARANCE</span>
           </div>
 
           <div className="col-span-12 md:col-span-9">

@@ -14,11 +14,11 @@ const FILE_DNA = [
 ];
 
 const HISTORY = [
-  { t: "09:14", a: "CREATED", src: "payroll@verdantco.com", flag: "ok" },
+  { t: "09:14", a: "CREATED", src: "nhs-trust-export.nhs.uk", flag: "ok" },
   { t: "11:02", a: "EXPORTED", src: "Chrome 121, GB", flag: "ok" },
   { t: "14:38", a: "RE-SAVED", src: "Preview.app — pages re-rendered", flag: "warn" },
-  { t: "14:41", a: "FIELD EDIT", src: "Net Pay £3,200 → £4,400", flag: "alert" },
-  { t: "15:02", a: "SUBMITTED", src: "applicant@—.io", flag: "ok" },
+  { t: "14:41", a: "SIGNATURE EDIT", src: "Physician signature digitally injected post-export.", flag: "alert" },
+  { t: "15:02", a: "SUBMITTED", src: "student@—.ac.uk", flag: "ok" },
 ];
 
 export function Engine() {
@@ -32,7 +32,7 @@ export function Engine() {
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
-            <span className="label-micro text-muted-foreground">03 / 05 — THE ENGINE</span>
+            <span className="label-micro text-muted-foreground">THE ENGINE</span>
           </div>
           <div className="col-span-12 md:col-span-9">
             <motion.h2
@@ -45,17 +45,17 @@ export function Engine() {
               Every file carries a <span className="italic">past</span>.
             </motion.h2>
             <p className="mt-10 max-w-[44ch] text-lg text-muted-foreground">
-              ECHT reconstructs the lifecycle of every document — from the device it was first printed on, to the second it was tampered with. No heuristics. Just provenance.
+              ECHT reconstructs the lifecycle of every lease-break document — from the clinic that issued the medical certificate to the moment a visa rejection letter was forged. No heuristics. Just provenance.
             </p>
           </div>
         </div>
 
         <div className="relative mt-16 grid grid-cols-12 gap-6 sm:mt-24">
-          {/* LEFT: payslip with heatmap */}
+          {/* LEFT: forged medical certificate with heatmap */}
           <motion.div style={{ y: docY }} className="col-span-12 lg:col-span-5">
             <div className="border border-hairline">
               <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
-                <span className="label-micro text-muted-foreground">PAYSLIP_MARCH.PDF</span>
+                <span className="label-micro text-muted-foreground">Forged_Medical_Certificate.pdf</span>
                 <span className="label-micro text-verdict-red">● TAMPER DETECTED</span>
               </div>
               <div className="relative aspect-[1/1.25] bg-card p-6">
@@ -64,7 +64,7 @@ export function Engine() {
                   <div className="h-2 w-1/3 bg-foreground/20" />
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3">
-                  {["Employer","PAYE Ref","Employee","NI Number","Period","Tax Code","Gross Pay","Net Pay"].map((l,i)=>(
+                  {["Patient","NHS Number","Clinic","Physician","Date Issued","Diagnosis","Fit Note Period","Signature"].map((l,i)=>(
                     <div key={l} className="space-y-1">
                       <div className="label-micro text-muted-foreground">{l}</div>
                       <div className={`h-2.5 ${i===7?"w-2/3 bg-verdict-red":"w-3/4 bg-foreground/60"}`} />
@@ -80,20 +80,20 @@ export function Engine() {
                   ))}
                 </div>
 
-                {/* parallax heatmap blob over Net Pay */}
+                {/* parallax heatmap blob over signature */}
                 <motion.div
                   style={{ y: heatY }}
                   className="pointer-events-none absolute right-6 top-[58%] h-24 w-40 border border-verdict-red/50"
                 >
                   <div className="absolute inset-0 bg-verdict-red/10" />
                   <div className="absolute -top-5 left-0 label-micro text-verdict-red">ANOMALY · 97%</div>
-                  <div className="absolute -bottom-5 right-0 label-micro text-verdict-red">+£1,200 EDIT</div>
+                  <div className="absolute -bottom-5 right-0 label-micro text-verdict-red">SIGNATURE INJECTED</div>
                 </motion.div>
               </div>
             </div>
             <div className="mt-4 flex justify-between label-micro text-muted-foreground">
               <span>SOURCE FILE</span>
-              <span>HEATMAP · LIVE</span>
+              <span className="text-muted-foreground">Fake_Visa_Rejection.pdf</span>
             </div>
           </motion.div>
 
@@ -154,7 +154,7 @@ export function Engine() {
             <div className="mt-6 border border-verdict-red bg-card p-5">
               <span className="label-micro text-verdict-red">VERDICT</span>
               <div className="mt-3 display-serif text-3xl text-verdict-red">Forgery</div>
-              <p className="mt-2 text-[12px] text-muted-foreground">Net Pay field modified post-export. Re-saved through unauthorised renderer.</p>
+              <p className="mt-2 text-[12px] text-muted-foreground">Physician signature digitally injected post-export. Re-saved through unauthorised renderer.</p>
             </div>
           </div>
         </div>

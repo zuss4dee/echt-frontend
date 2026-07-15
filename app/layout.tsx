@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Echt | Tenant Referencing Fraud Forensics",
+  title: "Echt | Student Accommodation Cancellation Fraud Prevention",
   description:
-    "Echt gives referencing teams the exact metadata and tamper signals to catch fraud. Upload payslips, bank statements, or IDs for a crystal clear outcome to approve real tenants and reject scammers.",
+    "AI forensic verification that catches forged medical notes and fake visa rejections before you issue a lease-break refund.",
 };
 
 export default function RootLayout({

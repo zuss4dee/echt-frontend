@@ -59,8 +59,6 @@ const STATS = [
     compact: true,
     staticDisplay: "£100k",
   },
-  { value: 500, label: "FORENSIC CHECKS COMPLETED" },
-  { value: 99.4, suffix: "%", decimals: 1, label: "VERDICT ACCURACY" },
   { value: 82, suffix: "ms", label: "MEDIAN ANALYSIS LATENCY" },
 ];
 
@@ -70,7 +68,7 @@ export function Proof() {
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <div className="grid grid-cols-12 gap-6 sm:gap-8">
           <div className="col-span-12 md:col-span-3">
-            <span className="label-micro text-muted-foreground">02 / 05 — ENTERPRISE PROOF</span>
+            <span className="label-micro text-muted-foreground">ENTERPRISE PROOF</span>
           </div>
           <div className="col-span-12 md:col-span-9">
             <motion.h2
@@ -85,7 +83,19 @@ export function Proof() {
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-px bg-hairline sm:grid-cols-2 md:mt-28 md:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-16 border border-hairline bg-background p-6 sm:mt-28 sm:p-10"
+        >
+          <p className="display-serif text-[clamp(24px,4vw,40px)] leading-[1.2] text-foreground">
+            Proven to catch 99.4% of forged lease-break documents for top UK PBSA operators.
+          </p>
+        </motion.div>
+
+        <div className="mt-px grid grid-cols-1 gap-px bg-hairline sm:grid-cols-2">
           {STATS.map((s, i) => (
             <motion.div
               key={s.label}
@@ -95,13 +105,11 @@ export function Proof() {
               transition={{ delay: i * 0.08, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               className="bg-background p-6 sm:p-10"
             >
-              <span className="label-micro text-muted-foreground">0{i + 1}</span>
-              <div className="mt-6 display-serif text-[clamp(36px,5vw,80px)] text-foreground sm:mt-10">
+              <div className="display-serif text-[clamp(36px,5vw,80px)] text-foreground">
                 <Counter
                   to={s.value}
                   prefix={s.prefix}
                   suffix={s.suffix}
-                  decimals={s.decimals}
                   compact={s.compact}
                   staticDisplay={s.staticDisplay}
                 />

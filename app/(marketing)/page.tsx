@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { MarketingHome } from "@/components/MarketingHome";
 
 export const metadata: Metadata = {
-  title: "ECHT — Forensic Integrity for Tenant Referencing",
+  title: "ECHT — Student Accommodation Cancellation Fraud Prevention",
   description:
-    "ECHT is enterprise-grade AI forensic verification for tenant referencing. Absolute truth in every document.",
+    "AI forensic verification that catches forged medical notes and fake visa rejections before you issue a lease-break refund.",
   openGraph: {
-    title: "ECHT — Forensic Integrity for Tenant Referencing",
+    title: "ECHT — Student Accommodation Cancellation Fraud Prevention",
     description:
-      "Enterprise AI forensic verification platform. Absolute truth in document analysis.",
+      "Stop revenue leakage from fake student cancellations. Forensic verification for UK PBSA operators.",
     type: "website",
   },
 };
