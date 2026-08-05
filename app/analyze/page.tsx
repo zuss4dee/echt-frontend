@@ -167,9 +167,19 @@ export default function Home() {
   const loadRecentScans = useCallback(async () => {
     const supabase = createSupabaseBrowserClient();
     try {
+      // Scope to the signed-in user. The RLS policy on public.scans is the actual
+      // security boundary (schema lives in the backend repo, docs/sql/scans.sql);
+      // this filter is defence in depth and must never be the only thing standing
+      // between customers. Removing it changes nothing; removing the policy does.
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("scans")
         .select("id, filename, verdict, created_at")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(5);
       if (error) {
