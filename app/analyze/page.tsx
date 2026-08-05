@@ -510,6 +510,35 @@ export default function Home() {
     secondaryVerdictSubtitle = "No critical policy violations detected";
   }
 
+  /**
+   * Split the flat `red_flags` list into what actually drove the verdict and
+   * what is merely context.
+   *
+   * `red_flags` is every message any detector emitted. The panel used to label
+   * the whole list "Critical Red Flags", so a photographed payslip could show
+   * "ACCEPT — Passes Forensic Checks" beside "Critical Red Flags: 1", the flag
+   * being "Low image detail — possible smoothing, scan or compression". The
+   * detector itself calls that ambiguous and consistent with photographing a
+   * genuine document; only the interface called it critical.
+   *
+   * `policy_result.critical_flags_hit` is the real signal — it is what the
+   * policy engine escalated, and it already excludes scan artefacts for
+   * document types marked `allow_scans`. Anything not in it is an observation.
+   */
+  const { criticalFlags, advisoryFlags } = useMemo(() => {
+    const all = result?.red_flags ?? [];
+    const hits = result?.policy_result?.critical_flags_hit ?? [];
+    const hitSet = new Set(hits);
+    // Auto-reject reasons are returned as critical but are not detector
+    // messages, so they never appear in red_flags — carry them through.
+    const notInRedFlags = hits.filter((h) => !all.includes(h));
+    return {
+      criticalFlags: [...all.filter((f) => hitSet.has(f)), ...notInRedFlags],
+      advisoryFlags: all.filter((f) => !hitSet.has(f)),
+    };
+  }, [result]);
+  const hasCritical = criticalFlags.length > 0;
+
   const landingSidebarNode = useMemo(
     () => (
       <div
@@ -1454,45 +1483,96 @@ export default function Home() {
                   className="rounded-2xl border bg-white p-5"
                   style={{ borderColor: COLORS.border, boxShadow: COLORS.cardShadow }}
                 >
+                  {/*
+                    Header severity follows the policy engine, not the raw flag
+                    count — so an accepted document never displays a red
+                    "Critical" heading next to its ACCEPT verdict.
+                  */}
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600 text-[13px]">
-                        !
+                      <span
+                        className={`flex h-6 w-6 items-center justify-center rounded-full text-[13px] ${
+                          hasCritical ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {hasCritical ? "!" : "i"}
                       </span>
                       <div className="text-[12px] font-semibold" style={{ color: COLORS.textPrimary }}>
-                        Critical Red Flags
+                        {hasCritical ? "Critical Red Flags" : "Findings"}
                       </div>
                     </div>
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">
-                      {result!.red_flags.length} Issues
-                    </span>
+                    {hasCritical ? (
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">
+                        {criticalFlags.length} Critical
+                      </span>
+                    ) : advisoryFlags.length > 0 ? (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                        {advisoryFlags.length} Observation{advisoryFlags.length === 1 ? "" : "s"}
+                      </span>
+                    ) : null}
                   </div>
 
-                  {result!.red_flags.length === 0 ? (
+                  {criticalFlags.length === 0 && advisoryFlags.length === 0 ? (
                     <p className="text-[13px]" style={{ color: COLORS.textSecondary }}>
                       No red flags detected.
                     </p>
                   ) : (
                     <>
-                      <ul className="space-y-2">
-                        {result!.red_flags.slice(0, 3).map((flag, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start gap-2 text-[13px]"
-                            style={{ color: COLORS.textPrimary }}
-                          >
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
-                            <span>{flag}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {result!.red_flags.length > 3 && (
+                      {hasCritical && (
+                        <ul className="space-y-2">
+                          {criticalFlags.slice(0, 3).map((flag, index) => (
+                            <li
+                              key={`crit-${index}`}
+                              className="flex items-start gap-2 text-[13px]"
+                              style={{ color: COLORS.textPrimary }}
+                            >
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                              <span>{flag}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {advisoryFlags.length > 0 && (
+                        <div className={hasCritical ? "mt-3 border-t pt-3" : ""} style={hasCritical ? { borderColor: COLORS.border } : undefined}>
+                          {hasCritical && (
+                            <div
+                              className="mb-2 text-[11px] font-medium uppercase tracking-wide"
+                              style={{ color: COLORS.textSecondary }}
+                            >
+                              Other observations
+                            </div>
+                          )}
+                          <ul className="space-y-2">
+                            {advisoryFlags.slice(0, hasCritical ? 2 : 3).map((flag, index) => (
+                              <li
+                                key={`adv-${index}`}
+                                className="flex items-start gap-2 text-[13px]"
+                                style={{ color: COLORS.textSecondary }}
+                              >
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-300" />
+                                <span>{flag}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          {!hasCritical && (
+                            <p className="mt-2 text-[11px]" style={{ color: COLORS.textSecondary }}>
+                              These did not breach policy for this document type. They are context
+                              for your review, not findings against the document.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {criticalFlags.length + advisoryFlags.length > 3 && (
                         <button
                           type="button"
                           onClick={() => setRedFlagsModalOpen(true)}
-                          className="mt-2 text-[12px] font-medium text-red-600 hover:underline"
+                          className={`mt-2 text-[12px] font-medium hover:underline ${
+                            hasCritical ? "text-red-600" : "text-slate-600"
+                          }`}
                         >
-                          Show All ({result!.red_flags.length})
+                          Show All ({criticalFlags.length + advisoryFlags.length})
                         </button>
                       )}
                     </>
@@ -1539,19 +1619,40 @@ export default function Home() {
                       </button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                      <section>
-                        <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
-                          Red Flags ({result?.red_flags?.length ?? 0})
-                        </h4>
-                        <ul className="space-y-2">
-                          {(result?.red_flags ?? []).map((flag, i) => (
-                            <li key={i} className="flex items-start gap-2 text-[13px]" style={{ color: COLORS.textPrimary }}>
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
-                              <span>{flag}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
+                      {/* Same split as the summary panel, so the two never disagree. */}
+                      {criticalFlags.length > 0 && (
+                        <section>
+                          <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                            Critical ({criticalFlags.length})
+                          </h4>
+                          <ul className="space-y-2">
+                            {criticalFlags.map((flag, i) => (
+                              <li key={`m-crit-${i}`} className="flex items-start gap-2 text-[13px]" style={{ color: COLORS.textPrimary }}>
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                                <span>{flag}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
+                      {advisoryFlags.length > 0 && (
+                        <section>
+                          <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
+                            Observations ({advisoryFlags.length})
+                          </h4>
+                          <p className="mb-2 text-[11px]" style={{ color: COLORS.textSecondary }}>
+                            Recorded for context. These did not breach policy for this document type.
+                          </p>
+                          <ul className="space-y-2">
+                            {advisoryFlags.map((flag, i) => (
+                              <li key={`m-adv-${i}`} className="flex items-start gap-2 text-[13px]" style={{ color: COLORS.textSecondary }}>
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-300" />
+                                <span>{flag}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
                       {result?.detector_summary && Object.keys(result.detector_summary).length > 0 && (
                         <section>
                           <h4 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: COLORS.textSecondary }}>
