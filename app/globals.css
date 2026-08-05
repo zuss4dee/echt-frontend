@@ -88,6 +88,34 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /**
+   * Entry animation for the auth panels (sign in / recovery).
+   *
+   * Deliberately CSS rather than framer-motion. Motion's `initial` prop is
+   * emitted as an inline `opacity: 0` in the server-rendered HTML and only
+   * cleared once the client bundle hydrates — so anything that stops hydration
+   * (a blocking browser extension, a failed chunk) leaves the panel invisible
+   * permanently, with no error and no way for the user to tell why. A CSS
+   * animation still runs when JS never executes, and if the stylesheet itself
+   * fails the element simply has no opacity rule and stays visible.
+   *
+   * `forwards`, deliberately not `both`. `both` also applies the 0% keyframe
+   * *before* the animation starts, which strands the panel at opacity 0 for as
+   * long as it never starts — a backgrounded tab does exactly this, recreating
+   * the very bug this replaced. `forwards` only holds the final state, so the
+   * element's natural (visible) style applies unless the animation truly runs.
+   */
+  --animate-panel-in: panel-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  @keyframes panel-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+    }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    }
+  }
   --animate-meteor: meteor 5s linear infinite;
   @keyframes meteor {
   0% {
@@ -101,6 +129,13 @@
     transform: rotate(var(--angle)) translateX(-500px);
     opacity: 0;
     }
+  }
+}
+
+/* Honour reduced-motion: show the panel immediately, never hide it. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-panel-in {
+    animation: none;
   }
 }
 

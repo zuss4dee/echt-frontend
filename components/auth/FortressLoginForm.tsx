@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthComplianceFooter, AuthShell } from "@/components/auth/AuthShell";
@@ -122,8 +121,12 @@ export function FortressLoginForm({ callbackError = false }: FortressLoginFormPr
         return;
       }
 
+      // Supabase returns no error here even when it sends nothing — an unknown
+      // address is answered identically to a real one, to prevent account
+      // enumeration. So this cannot claim an email was delivered; saying so
+      // sends people hunting an inbox for a message that was never sent.
       setMessage(
-        "Check your email for a recovery link. After opening it, you will set a new password before signing in.",
+        "If an account exists for that address, a recovery link is on its way. Check your inbox and spam folder. Opening it lets you set a new password.",
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -164,12 +167,13 @@ export function FortressLoginForm({ callbackError = false }: FortressLoginFormPr
         </div>
       }
     >
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative border border-foreground bg-background"
-      >
+      {/*
+        CSS animation, not framer-motion: motion's `initial` renders as an
+        inline opacity:0 that only clears on hydration. If the client bundle
+        is blocked, this panel is the sign-in form — an invisible one strands
+        the user with no error and nothing to report but a blank page.
+      */}
+      <div className="animate-panel-in relative border border-foreground bg-background">
         <div className="flex items-center justify-between border-b border-foreground px-6 py-4">
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 bg-verdict-green" />
@@ -258,7 +262,7 @@ export function FortressLoginForm({ callbackError = false }: FortressLoginFormPr
             REQUEST ACCESS →
           </Link>
         </div>
-      </motion.div>
+      </div>
 
       <AuthComplianceFooter />
     </AuthShell>

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthComplianceFooter, AuthShell } from "@/components/auth/AuthShell";
@@ -160,12 +159,12 @@ export function FortressSignupForm() {
         </div>
       }
     >
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative border border-foreground bg-background"
-      >
+      {/*
+        CSS animation, not framer-motion: motion's `initial` renders as an
+        inline opacity:0 that only clears on hydration, so a blocked client
+        bundle left this panel invisible with no error shown.
+      */}
+      <div className="animate-panel-in relative border border-foreground bg-background">
         <div className="flex items-center justify-between border-b border-foreground px-6 py-4">
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 bg-verdict-green" />
@@ -269,7 +268,7 @@ export function FortressSignupForm() {
             SIGN IN →
           </Link>
         </div>
-      </motion.div>
+      </div>
 
       <AuthComplianceFooter />
     </AuthShell>
